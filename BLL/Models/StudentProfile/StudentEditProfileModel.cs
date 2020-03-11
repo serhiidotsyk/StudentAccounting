@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BLL.Models.StudentProfile
 {
-    class StudentEditProfileModel
+    public class StudentEditProfileModel
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BLL.Interfaces
 {
-    interface IUserProfile
+    public interface IStudentProfileService
     {
         public StudentProfileModel GetStudentProfile(int id);
         public StudentEditProfileModel EditStudentProfile(int id);

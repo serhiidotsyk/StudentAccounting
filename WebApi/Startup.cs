@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using BLL.Interfaces;
+using BLL.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -29,6 +32,10 @@ namespace WebApi
             services.AddControllers();
 
             services.ConfigureSqlContext(Configuration);
+
+            services.AddAutoMapper(typeof(Startup));
+
+            services.AddScoped<IStudentProfileService, StudentProfileService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
