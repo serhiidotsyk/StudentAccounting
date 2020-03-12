@@ -8,25 +8,28 @@ namespace BLL.Services
 {
     public class StudentProfileService : IStudentProfileService
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public StudentProfileService(ApplicationDbContext dbContext, IMapper mapper)
+
+        public StudentProfileService(ApplicationDbContext context, IMapper mapper)
         {
-            _dbContext = dbContext;
+            _context = context;
             _mapper = mapper;
         }
-        public StudentEditProfileModel EditStudentProfile(int id)
+
+        public StudentModel EditStudentProfile(int id)
         {
             throw new NotImplementedException();
         }
 
-        public StudentProfileModel GetStudentProfile(int id)
+        public StudentModel GetStudentProfile(int id)
         {
-            var student = _dbContext.Users.Find(id);
+            var student = _context.Users.Find(id);
             if (student != null)
             {
-                return _mapper.Map<StudentProfileModel>(student);
+                return _mapper.Map<StudentModel>(student);
             }                    
+
             return null;           
         }
     }

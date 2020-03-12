@@ -33,9 +33,13 @@ namespace WebApi
 
             services.ConfigureSqlContext(Configuration);
 
+            // adding AutoMapper
             services.AddAutoMapper(typeof(Startup));
 
+            // Dependency Injection
             services.AddScoped<IStudentProfileService, StudentProfileService>();
+            services.AddScoped<ICourseService, CourseService>();
+            services.AddScoped<IAdminService, AdminService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
