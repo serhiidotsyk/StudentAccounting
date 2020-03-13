@@ -18,11 +18,14 @@ namespace BLL.Services
             _mapper = mapper;
         }
 
-        public StudentModel GetStudent(int studentId)
+        public StudentInfoModel GetStudent(int studentId)
         {
             var student = _context.Users.Find(studentId);
             if (student != null)
-                return _mapper.Map<StudentModel>(student);
+            {
+                return _mapper.Map<StudentInfoModel>(student);
+            }
+
             return null;
         }
 
@@ -30,14 +33,16 @@ namespace BLL.Services
         {
             var students = _context.Users.ToList();
             if (students != null)
+            {
                 return _mapper.Map<ICollection<StudentInfoModel>>(students);
+            }
 
             return null;
         }
 
-        public StudentModel EditSudent(StudentModel studentModel, int id)
+        public StudentModel UpdateStudent(StudentModel studentModel, int studentId)
         {
-            var student = _context.Users.Find(id);
+            var student = _context.Users.Find(studentId);
             if (student != null)
             {
                 student = _mapper.Map<User>(studentModel);
@@ -50,9 +55,9 @@ namespace BLL.Services
             return null;
         }
 
-        public StudentModel Delete(int id)
+        public StudentModel Delete(int studentId)
         {
-            var studentToDelete = _context.Users.Find(id);
+            var studentToDelete = _context.Users.Find(studentId);
             if (studentToDelete != null)
             {
                 _context.Users.Remove(studentToDelete);
@@ -63,10 +68,10 @@ namespace BLL.Services
             return null;
         }
 
-        public ICollection<StudentModel> Delete(int[] ids)
+        public ICollection<StudentModel> Delete(int[] studentIds)
         {
             List<StudentModel> studentList = new List<StudentModel>();
-            foreach (var id in ids)
+            foreach (var id in studentIds)
             {
                 var studentToDelete = _context.Users.Find(id);
                 if (studentToDelete != null)

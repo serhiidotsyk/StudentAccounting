@@ -38,6 +38,18 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt find course" });
         }
 
+        [HttpGet("getCourseByStudentId")]
+        public IActionResult GetCourseByStudentId(int studentId)
+        {
+            var courses = _courseService.GetCoursesByStudentId(studentId);
+            if(courses != null)
+            {
+                return Ok(courses);
+            }
+
+            return BadRequest(new { message = "Couldnt find course" });
+        }
+
         [HttpPost("createCourse")]
         public IActionResult CreateCourse(CourseModel courseModel)
         {

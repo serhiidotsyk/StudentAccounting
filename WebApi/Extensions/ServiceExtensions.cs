@@ -11,5 +11,13 @@ namespace WebApi.Extensions
             services.AddDbContext<ApplicationDbContext>(opts =>
                 opts.UseSqlServer(configuration.GetConnectionString("sqlConnection"), b =>
                     b.MigrationsAssembly("DAL")));
+
+        public static void ConfigureSwagger(this IServiceCollection services)
+        {
+            services.AddSwaggerGen(s =>
+            {
+                s.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "StudentAccounting", Version = "v1" });
+            });
+        }
     }
 }

@@ -5,10 +5,10 @@ namespace BLL.Interfaces
 {
     public interface IAdminService
     {
-        public StudentModel GetStudent(int studentId);
+        public StudentInfoModel GetStudent(int studentId);
         public ICollection<StudentInfoModel> GetAllStudents();
-        public StudentModel EditSudent(StudentModel studentModel, int id);
-        public StudentModel Delete(int id);
-        public ICollection<StudentModel> Delete(int[] ids);
+        public StudentModel UpdateStudent(StudentModel studentModel, int studentId);
+        public StudentModel Delete(int studentId);
+        public ICollection<StudentModel> Delete(int[] studentIds);
     }
 }

@@ -36,6 +36,9 @@ namespace WebApi
             // adding AutoMapper
             services.AddAutoMapper(typeof(Startup));
 
+            // adding swagger
+            services.ConfigureSwagger();
+
             // Dependency Injection
             services.AddScoped<IStudentProfileService, StudentProfileService>();
             services.AddScoped<ICourseService, CourseService>();
@@ -55,6 +58,12 @@ namespace WebApi
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(s =>
+            {
+                s.SwaggerEndpoint("/swagger/v1/swagger.json", "Student Accounting API v1");
+            });
 
             app.UseEndpoints(endpoints =>
             {

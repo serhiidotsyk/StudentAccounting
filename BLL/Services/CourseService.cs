@@ -4,6 +4,7 @@ using BLL.Models.Course;
 using BLL.Models.UserCourseModel;
 using DAL;
 using DAL.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,6 +34,26 @@ namespace BLL.Services
             if (course != null)
             {
                 return _mapper.Map<CourseModel>(course);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// gets courses by user id
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <returns>
+        /// return collection of courses by student
+        /// </returns>
+        public ICollection<CourseModel> GetCoursesByStudentId(int studentId)
+        {
+            var courses = _context.UserCourses.Include(c => c.Course)
+                                                .Where(u => u.UserId == studentId)
+                                                  .Select(x => x.Course);
+            if (courses != null)
+            {
+                return _mapper.Map<ICollection<CourseModel>>(courses);
             }
 
             return null;
