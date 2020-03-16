@@ -123,10 +123,10 @@ namespace BLL.Services
         /// <returns>
         /// returns a course to which user was subscribed
         /// </returns>
-        public CourseModel SubscribeToCourse(int userId, int courseId)
+        public CourseModel SubscribeToCourse(SubscribeToCourseModel subscribeToCourseModel)
         {
-            var course = _context.Courses.Find(courseId);
-            var user = _context.Users.Find(userId);
+            var course = _context.Courses.Find(subscribeToCourseModel.CourseId);
+            var user = _context.Users.Find(subscribeToCourseModel.UserId);
             if (course != null && user != null)
             {
                 var userCourseModel = new UserCourseModel
@@ -138,8 +138,13 @@ namespace BLL.Services
                 var userCourse = _mapper.Map<UserCourse>(userCourseModel);
                 _context.UserCourses.Add(userCourse);
 
+                course.StartDate = subscribeToCourseModel.EnrollmentDate;
+                course.EndDate = course.StartDate.Value.AddDays((double)course.DurationDays);
+                _context.Courses.Update(course);
+
                 user.StudyStart = course.StartDate;
                 _context.Users.Update(user);
+
                 _context.SaveChanges();
 
                 return _mapper.Map<CourseModel>(course);

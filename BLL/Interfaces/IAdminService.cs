@@ -7,8 +7,8 @@ namespace BLL.Interfaces
     {
         public StudentInfoModel GetStudent(int studentId);
         public ICollection<StudentInfoModel> GetAllStudents();
-        public StudentModel UpdateStudent(StudentModel studentModel, int studentId);
-        public StudentModel Delete(int studentId);
-        public ICollection<StudentModel> Delete(int[] studentIds);
+        public UserModel UpdateStudent(UserModel studentModel, int studentId);
+        public UserModel Delete(int studentId);
+        public ICollection<UserModel> Delete(int[] studentIds);
     }
 }

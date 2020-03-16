@@ -33,7 +33,6 @@ namespace DAL.Configuration
                     LastName = "Smith",
                     Age = 30,
                     Email = "john.smith@gmail.com",
-                    EmailConfirmed = true,
                     Password = "1234pass",
                     RegisteredDate = new DateTime(2018, 05, 15),
                     RoleId = (int)RoleType.Admin
@@ -45,7 +44,6 @@ namespace DAL.Configuration
                     LastName = "Glory",
                     Age = 18,
                     Email = "sam.glory@gmail.com",
-                    EmailConfirmed = true,
                     Password = "1234pass",
                     RegisteredDate = new DateTime(2019, 09, 21),
                     RoleId = (int)RoleType.Student

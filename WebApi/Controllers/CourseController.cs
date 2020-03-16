@@ -1,10 +1,12 @@
 ﻿using BLL.Interfaces;
 using BLL.Models.Course;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
     [Route("api/course")]
+    
     [ApiController]
     public class CourseController : ControllerBase
     {
@@ -26,6 +28,7 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt find course" });
         }
 
+        [Authorize]
         [HttpGet("getCourses")]
         public IActionResult GetCourses()
         {
@@ -75,9 +78,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("subscribeToCourse")]
-        public IActionResult SubscribeToCourse(int userId, int courseId)
+        public IActionResult SubscribeToCourse(SubscribeToCourseModel subscribeToCourseModel)
         {
-            var course = _courseService.SubscribeToCourse(userId, courseId);
+            var course = _courseService.SubscribeToCourse(subscribeToCourseModel);
             if (course != null)
             {
                 return Ok(course);

@@ -16,6 +16,7 @@ namespace WebApi.Extensions
         {
             services.AddSwaggerGen(s =>
             {
+                s.OperationFilter<AddAuthHeaderParam.AddAuthHeaderParam>();
                 s.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "StudentAccounting", Version = "v1" });
             });
         }

@@ -4,14 +4,16 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200316090924_added duration to course entity")]
+    partial class addeddurationtocourseentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,32 +53,6 @@ namespace DAL.Migrations
                             Name = "IT Step Academy",
                             StartDate = new DateTime(2020, 4, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
-                });
-
-            modelBuilder.Entity("DAL.Entities.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Revoked")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Token")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Tokens");
                 });
 
             modelBuilder.Entity("DAL.Entities.Role", b =>
@@ -124,6 +100,9 @@ namespace DAL.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool?>("EmailConfirmed")
+                        .HasColumnType("bit");
+
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
@@ -154,6 +133,7 @@ namespace DAL.Migrations
                             Id = 1,
                             Age = 30,
                             Email = "john.smith@gmail.com",
+                            EmailConfirmed = true,
                             FirstName = "John",
                             LastName = "Smith",
                             Password = "1234pass",
@@ -165,6 +145,7 @@ namespace DAL.Migrations
                             Id = 2,
                             Age = 18,
                             Email = "sam.glory@gmail.com",
+                            EmailConfirmed = true,
                             FirstName = "Sam",
                             LastName = "Glory",
                             Password = "1234pass",
@@ -193,15 +174,6 @@ namespace DAL.Migrations
                             CourseId = 1,
                             UserId = 2
                         });
-                });
-
-            modelBuilder.Entity("DAL.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("DAL.Entities.User", "User")
-                        .WithMany("Tokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("DAL.Entities.User", b =>

@@ -17,17 +17,17 @@ namespace BLL.Services
             _mapper = mapper;
         }
 
-        public StudentModel EditStudentProfile(int id)
+        public UserModel EditStudentProfile(int id)
         {
             throw new NotImplementedException();
         }
 
-        public StudentModel GetStudentProfile(int id)
+        public UserModel GetStudentProfile(int id)
         {
             var student = _context.Users.Find(id);
             if (student != null)
             {
-                return _mapper.Map<StudentModel>(student);
+                return _mapper.Map<UserModel>(student);
             }                    
 
             return null;           

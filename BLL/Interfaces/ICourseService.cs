@@ -10,7 +10,7 @@ namespace BLL.Interfaces
         public ICollection<CourseModel> GetAllCourses();
         public ICollection<CourseModel> GetCoursesByStudentId(int studentId);
         public CourseModel CreateCourse(CourseModel createCourseModel);
-        public CourseModel SubscribeToCourse(int userId, int courseId);
+        public CourseModel SubscribeToCourse(SubscribeToCourseModel subscribeToCourseModel);
         public CourseModel UpdateCourse(CourseModel courseModel,int courseId);
         public CourseModel DeleteCourse(int id);
         public ICollection<CourseModel> DeleteCourses(int[] ids);

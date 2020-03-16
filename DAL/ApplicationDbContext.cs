@@ -28,5 +28,6 @@ namespace DAL
         public DbSet<Role> Roles { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<UserCourse> UserCourses { get; set; }
+        public DbSet<RefreshToken> Tokens { get; set; }
     }
 }

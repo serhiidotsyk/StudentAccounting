@@ -9,10 +9,10 @@ namespace WebApi.MapperProfiler
         public StudentMapperProfile()
         {
             // Mapping StudentModel and User (aslo reverse)
-            CreateMap<User, StudentModel>();
+            CreateMap<User, UserModel>();
 
             //.ReverseMap()
-            CreateMap<StudentModel, User>()
+            CreateMap<UserModel, User>()
                 .ForMember(u => u.Password, cfg => cfg.Ignore());
 
             // Mapping StudentInfoModel and User (also reverse)

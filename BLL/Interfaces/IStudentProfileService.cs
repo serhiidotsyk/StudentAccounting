@@ -7,7 +7,7 @@ namespace BLL.Interfaces
 {
     public interface IStudentProfileService
     {
-        public StudentModel GetStudentProfile(int id);
-        public StudentModel EditStudentProfile(int id);
+        public UserModel GetStudentProfile(int id);
+        public UserModel EditStudentProfile(int id);
     }
 }

@@ -1,10 +1,12 @@
 ﻿using BLL.Interfaces;
 using BLL.Models.StudentProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
-{
+{    
     [Route("api/admin")]
+    [Authorize(Roles = "admin")]
     [ApiController]
     public class AdminController : ControllerBase
     {
@@ -37,7 +39,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("updateStudent")]
-        public IActionResult UpdateStudent(StudentModel studentModel, int studentId)
+        public IActionResult UpdateStudent(UserModel studentModel, int studentId)
         {
             var student = _adminService.UpdateStudent(studentModel, studentId);
             if(student != null)

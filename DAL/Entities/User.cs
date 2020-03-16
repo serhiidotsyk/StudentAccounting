@@ -33,11 +33,6 @@ namespace DAL.Entities
         public string Email { get; set; }
 
         /// <summary>
-        /// Gets or sets user email confirmed
-        /// </summary>
-        public bool? EmailConfirmed { get; set; }
-
-        /// <summary>
         /// Gets or sets user registered date
         /// </summary>
         public DateTime RegisteredDate { get; set; }
@@ -56,11 +51,12 @@ namespace DAL.Entities
         /// Navigation property to role
         /// </summary>
         public int RoleId { get; set; }
+        public Role Role { get; set; }
 
         /// <summary>
-        /// Navigation property to role
+        /// navigation property to refresh token
         /// </summary>
-        public Role Role { get; set; }
+        public ICollection<RefreshToken> Tokens { get; set; }
 
         /// <summary>
         /// Navigation property to user courses

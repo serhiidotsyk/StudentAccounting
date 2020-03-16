@@ -40,12 +40,12 @@ namespace BLL.Services
             return null;
         }
 
-        public StudentModel UpdateStudent(StudentModel studentModel, int studentId)
+        public UserModel UpdateStudent(UserModel studentModel, int studentId)
         {
             var student = _context.Users.Find(studentId);
             if (student != null)
             {
-                student = _mapper.Map<User>(studentModel);
+                student = _mapper.Map<UserModel, User>(studentModel, student);
                 _context.Users.Update(student);
                 _context.SaveChanges();
 
@@ -55,22 +55,22 @@ namespace BLL.Services
             return null;
         }
 
-        public StudentModel Delete(int studentId)
+        public UserModel Delete(int studentId)
         {
             var studentToDelete = _context.Users.Find(studentId);
             if (studentToDelete != null)
             {
                 _context.Users.Remove(studentToDelete);
                 _context.SaveChanges();
-                return _mapper.Map<StudentModel>(studentToDelete);
+                return _mapper.Map<UserModel>(studentToDelete);
             }
 
             return null;
         }
 
-        public ICollection<StudentModel> Delete(int[] studentIds)
+        public ICollection<UserModel> Delete(int[] studentIds)
         {
-            List<StudentModel> studentList = new List<StudentModel>();
+            List<UserModel> studentList = new List<UserModel>();
             foreach (var id in studentIds)
             {
                 var studentToDelete = _context.Users.Find(id);
@@ -79,7 +79,7 @@ namespace BLL.Services
                     _context.Users.Remove(studentToDelete);
                     _context.SaveChanges();
 
-                    var studentModel = _mapper.Map<StudentModel>(studentToDelete);
+                    var studentModel = _mapper.Map<UserModel>(studentToDelete);
 
                     studentList.Add(studentModel);
                 }
