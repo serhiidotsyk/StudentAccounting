@@ -5,7 +5,6 @@ using BLL.Models.StudentProfile;
 using DAL;
 using DAL.Entities;
 using DAL.Shared;
-using Hangfire;
 using System;
 using System.Linq;
 
@@ -31,7 +30,6 @@ namespace BLL.Services
             }
             if (user.Password.Equals(userSignInModel.Password) && user.IsEmailComfirmed == true)
             {
-                BackgroundJob.Schedule<IMailService>(mailService => mailService.SendScheduledEmail("test scheduled"), TimeSpan.FromMinutes(5));
                 return (true, _mapper.Map<UserModel>(user));
             }
             else
@@ -65,7 +63,6 @@ namespace BLL.Services
 
                 _mailService.SendConfirmationLink(userValidation.Email,
                     $"Confirm registration following the link: <a href='{callBackUrl}'>Confirm email NOW</a>");
-                BackgroundJob.Enqueue<IMailService>(mailService => mailService.SendScheduledEmail("test scheduled"));
 
                 return userValidation;
             }
@@ -85,8 +82,10 @@ namespace BLL.Services
                     _context.Users.Update(user);
                     _context.SaveChanges();
                 }
+                return _mapper.Map<UserModel>(user);
             }
-            return _mapper.Map<UserModel>(user);
+            return null;
+            
         }
     }
 }

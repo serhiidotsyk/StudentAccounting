@@ -2,9 +2,12 @@
 using BLL.Interfaces;
 using BLL.Models.Course;
 using BLL.Models.UserCourseModel;
+using BLL.Services.Extensions;
 using DAL;
 using DAL.Entities;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,13 +15,23 @@ namespace BLL.Services
 {
     public class CourseService : ICourseService
     {
-        private protected ApplicationDbContext _context;
-        private protected IMapper _mapper;
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly BackgroundJobClient _backgroundJob;
+
+
+        private const int ONE_DAY_BEFORE_COURSE_START = 1;
+        private const int ONE_WEEK_BEFORE_COURSE_START = 7;
+        private const int ONE_MONTH_BEFORE_COURSE_START = 30;
+        private const int HOUR_TO_SEND_EMAIL = 8;
+
+
 
         public CourseService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
+            _backgroundJob = new BackgroundJobClient();
         }
 
         /// <summary>
@@ -127,6 +140,7 @@ namespace BLL.Services
         {
             var course = _context.Courses.Find(subscribeToCourseModel.CourseId);
             var user = _context.Users.Find(subscribeToCourseModel.UserId);
+
             if (course != null && user != null)
             {
                 var userCourseModel = new UserCourseModel
@@ -147,11 +161,28 @@ namespace BLL.Services
 
                 _context.SaveChanges();
 
+                SendScheduledEmailBackground(course.StartDate.Value, ONE_DAY_BEFORE_COURSE_START);
+                SendScheduledEmailBackground(course.StartDate.Value, ONE_WEEK_BEFORE_COURSE_START);
+                SendScheduledEmailBackground(course.StartDate.Value, ONE_MONTH_BEFORE_COURSE_START);
+
                 return _mapper.Map<CourseModel>(course);
             }
 
             return null;
         }
+
+        private void SendScheduledEmailBackground(DateTime startDate, int delayInDays)
+        {
+            var timeToSendEmail = startDate.AddDays(delayInDays * -1);
+            if (delayInDays == ONE_DAY_BEFORE_COURSE_START)
+            {
+                timeToSendEmail = new DateTime(timeToSendEmail.Year, timeToSendEmail.Month, timeToSendEmail.Day, HOUR_TO_SEND_EMAIL, 0, 0);
+            }
+
+            DateTimeOffset offsetTime = new DateTimeOffset(timeToSendEmail);
+            _backgroundJob.Schedule<IMailService>(mailService => mailService.SendScheduledEmail($"test scheduled in {delayInDays} day(-s)"), offsetTime);
+        }
+
 
         /// <summary>
         /// deletes a course
@@ -170,7 +201,7 @@ namespace BLL.Services
                 return _mapper.Map<CourseModel>(course);
             }
 
-            return null;            
+            return null;
         }
 
         /// <summary>
@@ -197,7 +228,7 @@ namespace BLL.Services
                 }
             }
 
-            if(courseList.Count > 1)
+            if (courseList.Count > 1)
             {
                 return courseList;
             }
