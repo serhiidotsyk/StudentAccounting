@@ -19,7 +19,8 @@ namespace WebApi.Extensions.AddAuthHeaderParam
 					 {
 						 Name = "Authorization",
 						 In =ParameterLocation.Header,
-						 Description = "e.g.: bearer [token]"
+						 Description = "e.g.: bearer [token]",
+						 
 					 });
 		}
 	}

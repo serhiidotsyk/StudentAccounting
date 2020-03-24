@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers
 {    
     [Route("api/admin")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class AdminController : ControllerBase
     {

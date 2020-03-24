@@ -26,7 +26,7 @@ namespace BLL.Services
         private const int MAXIMUM_LOGGED_DEVICES = 5;
         private const int REFRESH_TOKEN_LIFETIME = 15;
 
-        public TokenService(ApplicationDbContext context ,IOptions<AppSettings> appSettings, IMapper mapper)
+        public TokenService(ApplicationDbContext context, IOptions<AppSettings> appSettings, IMapper mapper)
         {
             _context = context;
             _appSettings = appSettings.Value;
@@ -40,12 +40,13 @@ namespace BLL.Services
         /// <returns></returns>
         public JwtSecurityToken GenerateAccessToken(int userId)
         {
-            var role = _context.Users.Include(u => u.Role).Where(i => i.Id == userId).FirstOrDefault();
-            
+            var user = _context.Users.Include(u => u.Role).Where(i => i.Id == userId).FirstOrDefault();
+
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, userId.ToString()),
-                new Claim(ClaimTypes.Role, role.Role.Name)
+                new Claim("id", userId.ToString()),
+                new Claim("email", user.Email),
+                new Claim("role", user.Role.Name)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JwtKey));

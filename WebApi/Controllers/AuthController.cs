@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IdentityModel.Tokens.Jwt;
 using BLL.Interfaces;
 using BLL.Models.Auth;
-using BLL.Models.Token;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -24,26 +18,39 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register(UserSignUpModel userSignUpModel)
+        public  IActionResult Register(UserSignUpModel userSignUpModel)
         {
             var user = _authService.SignUp(userSignUpModel);
             if (user != null)
             {
-                return Ok(new { message = "User successfully registered" });
+                return Ok(new
+                {
+                    message = "User was successfully registered"
+                });
             }
 
             return BadRequest(new { message = "User was not registered" });
         }
-        
+
+        [HttpGet("ConfirmEmail")]
+        public IActionResult ConfirmEmail(int userId, string token)
+        {
+            var user = _authService.ConfirmEmail(userId, token);
+            if (user != null)
+                return Ok("Email Confirmed!");
+            else
+                return BadRequest("User error");
+        }
+
         [HttpPost("signIn")]
         public IActionResult SignIn(UserSignInModel userSignInModel)
         {
             var (state ,user) = _authService.SignIn(userSignInModel);            
             if(state)
             {
-               var access_token = new JwtSecurityTokenHandler().WriteToken(_tokenService.GenerateAccessToken(user.Id));
+                var access_token = new JwtSecurityTokenHandler().WriteToken(_tokenService.GenerateAccessToken(user.Id));
                 var refresh_token = _tokenService.GenerateRefreshToken(user).Token;
-
+                    
                 return Ok(new
                 {
                     access_token,
@@ -55,9 +62,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("refreshToken")]
-        public IActionResult RefreshToken(RefreshTokenModel refreshTokenModel)
+        public IActionResult RefreshToken(string refreshTokenModel)
         {
-            var refreshedToken = _tokenService.ValidateRefreshToken(refreshTokenModel.Token);
+            var refreshedToken = _tokenService.ValidateRefreshToken(refreshTokenModel);
             if (refreshedToken == null)
             {
                 return BadRequest(new { message = "invalid_grant" });
@@ -65,7 +72,7 @@ namespace WebApi.Controllers
 
             return Ok(new
             {
-                access_token = new JwtSecurityTokenHandler().WriteToken(_tokenService.GenerateAccessToken(refreshTokenModel.UserId)),
+                access_token = new JwtSecurityTokenHandler().WriteToken(_tokenService.GenerateAccessToken(refreshedToken.UserId)),
                 refresh_token = refreshedToken.Token
             });
         }

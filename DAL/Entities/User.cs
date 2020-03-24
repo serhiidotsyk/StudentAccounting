@@ -33,6 +33,16 @@ namespace DAL.Entities
         public string Email { get; set; }
 
         /// <summary>
+        /// Gets or sets user email confirmed
+        /// </summary>
+        public bool IsEmailComfirmed { get; set; }
+
+        /// <summary>
+        /// Get or sets email confirmation token
+        /// </summary>
+        public string EmailConfirmationToken { get; set; }
+
+        /// <summary>
         /// Gets or sets user registered date
         /// </summary>
         public DateTime RegisteredDate { get; set; }

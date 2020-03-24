@@ -5,10 +5,9 @@ using BLL.Models.StudentProfile;
 using DAL;
 using DAL.Entities;
 using DAL.Shared;
+using Hangfire;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BLL.Services
 {
@@ -16,10 +15,12 @@ namespace BLL.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public AuthService(ApplicationDbContext context, IMapper mapper)
+        private readonly IMailService _mailService;
+        public AuthService(ApplicationDbContext context, IMapper mapper, IMailService mailService)
         {
             _context = context;
             _mapper = mapper;
+            _mailService = mailService;
         }
         public (bool, UserModel) SignIn(UserSignInModel userSignInModel)
         {
@@ -28,8 +29,9 @@ namespace BLL.Services
             {
                 return (false, null);
             }
-            if (user.Password.Equals(userSignInModel.Password))
+            if (user.Password.Equals(userSignInModel.Password) && user.IsEmailComfirmed == true)
             {
+                BackgroundJob.Schedule<IMailService>(mailService => mailService.SendScheduledEmail("test scheduled"), TimeSpan.FromMinutes(5));
                 return (true, _mapper.Map<UserModel>(user));
             }
             else
@@ -41,6 +43,10 @@ namespace BLL.Services
 
         public UserModel SignUp(UserSignUpModel userSignUpModel)
         {
+            var isUserExists = _context.Users.Where(u => u.Email == userSignUpModel.Email).SingleOrDefault();
+            if (isUserExists != null)
+                return null;
+
             var user = _mapper.Map<UserSignUpModel, User>(userSignUpModel, cfg =>
                 cfg.AfterMap((src, dest) =>
                 {
@@ -53,10 +59,34 @@ namespace BLL.Services
                 _context.Users.Add(user);
                 _context.SaveChanges();
 
-                return _mapper.Map<UserModel>(user);
+                var userValidation = _mapper.Map<UserModel>(user);
+
+                string callBackUrl = _mailService.GenerateConfirmationLink(userValidation);
+
+                _mailService.SendConfirmationLink(userValidation.Email,
+                    $"Confirm registration following the link: <a href='{callBackUrl}'>Confirm email NOW</a>");
+                BackgroundJob.Enqueue<IMailService>(mailService => mailService.SendScheduledEmail("test scheduled"));
+
+                return userValidation;
             }
 
             return null;
+        }
+
+        public UserModel ConfirmEmail(int userId, string token)
+        {
+            var user = _context.Users.Where(u => u.Id == userId).SingleOrDefault();
+            if(user != null)
+            {
+                if (user.EmailConfirmationToken.Equals(token))
+                {
+                    user.IsEmailComfirmed = true;
+
+                    _context.Users.Update(user);
+                    _context.SaveChanges();
+                }
+            }
+            return _mapper.Map<UserModel>(user);
         }
     }
 }

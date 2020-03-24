@@ -1,9 +1,5 @@
 ﻿using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
-using DAL.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BLL.Interfaces
 {
@@ -11,5 +7,6 @@ namespace BLL.Interfaces
     {
         public (bool, UserModel) SignIn(UserSignInModel userSignInModel);
         public UserModel SignUp(UserSignUpModel userSignUpModel);
+        public UserModel ConfirmEmail(int userId, string token);
     }
 }
