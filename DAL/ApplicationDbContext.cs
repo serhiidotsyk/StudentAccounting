@@ -18,7 +18,7 @@ namespace DAL
         {
             // Configure CourseId and UserId as the composite key
             modelBuilder.Entity<UserCourse>()
-                .HasKey(uc => new { uc.CourseId, uc.UserId});
+                .HasKey(uc => new { uc.CourseId, uc.StudentId});
 
             // seeding data
             modelBuilder.Seed();

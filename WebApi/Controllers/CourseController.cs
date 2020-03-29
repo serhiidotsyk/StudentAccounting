@@ -1,12 +1,13 @@
 ﻿using BLL.Interfaces;
 using BLL.Models.Course;
+using BLL.Models.UserCourseModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
     [Route("api/course")]
-    
+    [Authorize]
     [ApiController]
     public class CourseController : ControllerBase
     {
@@ -28,7 +29,6 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt find course" });
         }
 
-        [Authorize]
         [HttpGet("getCourses")]
         public IActionResult GetCourses()
         {
@@ -41,7 +41,19 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt find course" });
         }
 
-        [HttpGet("getCourseByStudentId")]
+        [HttpGet("getAvailableCourses")]
+        public IActionResult GetAvailableCourses(int studentId)
+        {
+            var courses = _courseService.GetAvailableCourses(studentId);
+            if (courses != null)
+            {
+                return Ok(courses);
+            }   
+
+            return BadRequest(new { message = "Couldnt find course" });
+        }
+
+        [HttpGet("getCoursesByStudentId")]
         public IActionResult GetCourseByStudentId(int studentId)
         {
             var courses = _courseService.GetCoursesByStudentId(studentId);
@@ -53,6 +65,7 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt find course" });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("createCourse")]
         public IActionResult CreateCourse(CourseModel courseModel)
         {
@@ -65,6 +78,7 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt create course" });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("updateCourse")]
         public IActionResult UpdateCourse(CourseModel courseModel, int courseId)
         {
@@ -89,6 +103,18 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt subscribe to course" });
         }
 
+        [HttpPut("unSubscribeFromCourse")]
+        public IActionResult UnSubscribeFromCourse(UserCourseModel userCourseModel)
+        {
+            var course = _courseService.UnSubscribeFromCourse(userCourseModel);
+            if(course != null)
+            {
+                return Ok(course);
+            }
+            return BadRequest(new { message = "Couldnt unsubscribe to course" });
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpDelete("deleteCourse")]
         public IActionResult DeleteCourse(int id)
         {
@@ -101,6 +127,7 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt delete course" });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("deleteCourses")]
         public IActionResult DeleteCourses([FromQuery]int[] ids)
         {

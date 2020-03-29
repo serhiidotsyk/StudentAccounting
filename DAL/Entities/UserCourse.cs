@@ -6,8 +6,8 @@ namespace DAL.Entities
 {
     public class UserCourse
     {
-        public int UserId { get; set; }
-        public User User { get; set; }
+        public int StudentId { get; set; }
+        public User Student { get; set; }
         public int CourseId { get; set; }
         public Course Course { get; set; }
     }

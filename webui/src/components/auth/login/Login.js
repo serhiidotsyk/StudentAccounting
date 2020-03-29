@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { login } from "../../../actions/authAction";
-import { addToast } from "../../../actions/notificationAction";
 
 import { Form, Input, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
@@ -19,7 +17,6 @@ const Login = props => {
     props
       .login(loginForm)
       .then(() => setDone(true))
-      //.then(() => addToast({ text: "Hello, World!" }));
   };
 
   const form = (
@@ -53,7 +50,7 @@ const Login = props => {
       </Form.Item>
     </Form>
   );
-  return done ? <Redirect to="/" /> : form;
+  return done ? <Redirect to="/student/courses" /> : form;
 };
 
 

@@ -6,7 +6,7 @@ namespace BLL.Models.UserCourseModel
 {
     public class UserCourseModel
     {
-        public int UserId { get; set; }
+        public int StudentId { get; set; }
         public int CourseId { get; set; }
     }
 }

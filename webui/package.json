@@ -10,6 +10,7 @@
     "axios": "^0.19.2",
     "eslint-plugin-react-hooks": "^2.5.0",
     "jsonwebtoken": "^8.5.1",
+    "moment": "^2.24.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-redux": "^7.2.0",

@@ -59,7 +59,7 @@ namespace DAL.Configuration
             modelBuilder.Entity<UserCourse>().HasData(
                 new UserCourse
                 {
-                    UserId = 2,
+                    StudentId = 2,
                     CourseId = 1,
                 });
         }

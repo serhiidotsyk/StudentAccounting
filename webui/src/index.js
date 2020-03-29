@@ -1,10 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Provider } from 'react-redux'
+import { Provider } from "react-redux";
 import { createBrowserHistory } from "history";
 import configureStore from "./store/configureStore";
 import * as serviceWorker from "./serviceWorker";
 import setAuthorizationToken from "./utils/setAuthorizationToken";
+import createAxiosResponseInterceptor from "./utils/axiosInterceptor";
 import { setCurrentUser } from "./actions/authAction";
 import jwt from "jsonwebtoken";
 import App from "./App";
@@ -27,13 +28,15 @@ if (localStorage.jwtToken) {
   store.dispatch(setCurrentUser(user));
 }
 
+createAxiosResponseInterceptor();
+
 const rootElement = document.getElementById("root");
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router history = {history}>
+    <Router history={history}>
       <App />
-      </Router>
+    </Router>
   </Provider>,
   rootElement
 );

@@ -3,12 +3,16 @@ import thunk from "redux-thunk";
 import { routerReducer, routerMiddleware } from "react-router-redux";
 
 import auth from "../reducers/authReducer";
-import notification from "../reducers/notificationReducer"
+import notification from "../reducers/notificationReducer";
+import course from "../reducers/courseReducer";
+import studentCourses from "../reducers/studentCourseReducer";
 
 export default function configureStore(history, initialState) {
   const reducers = {
     auth,
     notification,
+    course,
+    studentCourses
   };
 
   const middleware = [thunk, routerMiddleware(history)];

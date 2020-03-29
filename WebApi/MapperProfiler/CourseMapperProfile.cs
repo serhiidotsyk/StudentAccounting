@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BLL.Models.Course;
+using BLL.Models.UserCourseModel;
 using DAL.Entities;
 
 namespace WebApi.MapperProfiler
@@ -10,6 +11,12 @@ namespace WebApi.MapperProfiler
         {
             CreateMap<Course, CourseModel>();
             CreateMap<CourseModel, Course>();
+
+            CreateMap<Course, CourseInfoModel>();
+            CreateMap<CourseInfoModel, Course>();
+
+            CreateMap<Course, UserCourseModel>();
+            CreateMap<UserCourseModel, Course>();
         }
     }
 }

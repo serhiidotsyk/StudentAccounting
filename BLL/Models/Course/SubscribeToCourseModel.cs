@@ -6,8 +6,8 @@ namespace BLL.Models.Course
 {
     public class SubscribeToCourseModel
     {
-        public int UserId { get; set; }
+        public int StudentId { get; set; }
         public int CourseId { get; set; }
-        public DateTime EnrollmentDate { get; set; }
+        public long EnrollmentDate { get; set; }
     }
 }

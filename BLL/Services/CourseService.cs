@@ -2,7 +2,6 @@
 using BLL.Interfaces;
 using BLL.Models.Course;
 using BLL.Models.UserCourseModel;
-using BLL.Services.Extensions;
 using DAL;
 using DAL.Entities;
 using Hangfire;
@@ -59,14 +58,14 @@ namespace BLL.Services
         /// <returns>
         /// return collection of courses by student
         /// </returns>
-        public ICollection<CourseModel> GetCoursesByStudentId(int studentId)
+        public ICollection<CourseInfoModel> GetCoursesByStudentId(int studentId)
         {
             var courses = _context.UserCourses.Include(c => c.Course)
-                                                .Where(u => u.UserId == studentId)
+                                                .Where(u => u.StudentId == studentId)
                                                   .Select(x => x.Course);
             if (courses != null)
             {
-                return _mapper.Map<ICollection<CourseModel>>(courses);
+                return _mapper.Map<ICollection<CourseInfoModel>>(courses);
             }
 
             return null;
@@ -81,6 +80,30 @@ namespace BLL.Services
         public ICollection<CourseModel> GetAllCourses()
         {
             var courses = _context.Courses.ToList();
+            if (courses != null)
+            {
+                return _mapper.Map<ICollection<CourseModel>>(courses);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// get avalilable courses for specific user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>
+        /// returns a collection of available courses
+        /// </returns>
+        public ICollection<CourseModel> GetAvailableCourses(int userId)
+        {
+            //var courses = _context.UserCourses.Include(c => c.Course)
+            //                                    .Where(u => u.UserId != userId)
+            //                                      .Select(x => x.Course);
+            var courses = _context.Courses.Include(uc => uc.UserCourses)//.ToList();
+                                           .Where(uc => uc.UserCourses.Count == 0);
+                                           // .Select(c=> c.UserCourses);
+            //var course = _context.U
             if (courses != null)
             {
                 return _mapper.Map<ICollection<CourseModel>>(courses);
@@ -139,20 +162,20 @@ namespace BLL.Services
         public CourseModel SubscribeToCourse(SubscribeToCourseModel subscribeToCourseModel)
         {
             var course = _context.Courses.Find(subscribeToCourseModel.CourseId);
-            var user = _context.Users.Find(subscribeToCourseModel.UserId);
+            var user = _context.Users.Find(subscribeToCourseModel.StudentId);
 
             if (course != null && user != null)
             {
                 var userCourseModel = new UserCourseModel
                 {
                     CourseId = course.Id,
-                    UserId = user.Id
+                    StudentId = user.Id
                 };
 
                 var userCourse = _mapper.Map<UserCourse>(userCourseModel);
                 _context.UserCourses.Add(userCourse);
 
-                course.StartDate = subscribeToCourseModel.EnrollmentDate;
+                course.StartDate = DateTimeOffset.FromUnixTimeMilliseconds(subscribeToCourseModel.EnrollmentDate).UtcDateTime;
                 course.EndDate = course.StartDate.Value.AddDays((double)course.DurationDays);
                 _context.Courses.Update(course);
 
@@ -183,6 +206,26 @@ namespace BLL.Services
             _backgroundJob.Schedule<IMailService>(mailService => mailService.SendScheduledEmail($"test scheduled in {delayInDays} day(-s)"), offsetTime);
         }
 
+        /// <summary>
+        /// unsubscribes user from course
+        /// </summary>
+        /// <param name="userCourseModel"></param>
+        /// <returns>
+        /// unsubscribed course
+        /// </returns>
+        public UserCourseModel UnSubscribeFromCourse(UserCourseModel userCourseModel)
+        {
+            var userCourse = _context.UserCourses.Where(uc => uc.StudentId == userCourseModel.StudentId 
+                                                           && uc.CourseId == userCourseModel.CourseId)
+                                                            .SingleOrDefault();
+            if(userCourse != null)
+            {
+                _context.UserCourses.Remove(userCourse);
+                _context.SaveChanges();
+                return _mapper.Map<UserCourseModel>(userCourse);
+            }
+            return null;
+        }
 
         /// <summary>
         /// deletes a course
