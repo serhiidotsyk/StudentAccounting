@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import CourseCard from "./CourseCard";
 import { connect } from "react-redux";
 import { getCourses } from "../../../actions/courseAction";
+import "./CourseCards.css"
 
 const CourseCards = ({ getCourses, studentId, ...props }) => {
 

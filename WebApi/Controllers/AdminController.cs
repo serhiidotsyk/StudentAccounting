@@ -1,4 +1,5 @@
 ﻿using BLL.Interfaces;
+using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,10 +39,21 @@ namespace WebApi.Controllers
             return BadRequest(new { message = "Couldnt find any student" });
         }
 
-        [HttpPut("updateStudent")]
-        public IActionResult UpdateStudent(UserModel studentModel, int studentId)
+        [HttpPost("createStudent")]
+        public IActionResult CreateStudent(UserSignUpModel userModel)
         {
-            var student = _adminService.UpdateStudent(studentModel, studentId);
+            var student = _adminService.CreateStudent(userModel);
+            if(student != null)
+            {
+                return Ok(student);
+            }
+            return BadRequest(new { message = "Couldnt create student" });
+        }
+
+        [HttpPut("updateStudent")]
+        public IActionResult UpdateStudent(UserModel studentModel)
+        {
+            var student = _adminService.UpdateStudent(studentModel);
             if(student != null)
             {
                 return Ok(student);

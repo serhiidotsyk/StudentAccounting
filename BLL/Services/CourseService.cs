@@ -102,8 +102,6 @@ namespace BLL.Services
             //                                      .Select(x => x.Course);
             var courses = _context.Courses.Include(uc => uc.UserCourses)//.ToList();
                                            .Where(uc => uc.UserCourses.Count == 0);
-                                           // .Select(c=> c.UserCourses);
-            //var course = _context.U
             if (courses != null)
             {
                 return _mapper.Map<ICollection<CourseModel>>(courses);
@@ -177,6 +175,7 @@ namespace BLL.Services
 
                 course.StartDate = DateTimeOffset.FromUnixTimeMilliseconds(subscribeToCourseModel.EnrollmentDate).UtcDateTime;
                 course.EndDate = course.StartDate.Value.AddDays((double)course.DurationDays);
+
                 _context.Courses.Update(course);
 
                 user.StudyStart = course.StartDate;
@@ -203,6 +202,7 @@ namespace BLL.Services
             }
 
             DateTimeOffset offsetTime = new DateTimeOffset(timeToSendEmail);
+            
             _backgroundJob.Schedule<IMailService>(mailService => mailService.SendScheduledEmail($"test scheduled in {delayInDays} day(-s)"), offsetTime);
         }
 
@@ -220,6 +220,8 @@ namespace BLL.Services
                                                             .SingleOrDefault();
             if(userCourse != null)
             {
+                //var course
+
                 _context.UserCourses.Remove(userCourse);
                 _context.SaveChanges();
                 return _mapper.Map<UserCourseModel>(userCourse);

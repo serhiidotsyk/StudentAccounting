@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace DAL.Entities
 {
@@ -72,5 +70,10 @@ namespace DAL.Entities
         /// Navigation property to user courses
         /// </summary>
         public ICollection<UserCourse> UserCourses { get; set; }
+
+        /// <summary>
+        /// Navigation property to scheduld ids
+        /// </summary>
+        public ICollection<ScheduledJob> ScheduledJobs { get; set; }
     }
 }

@@ -6,13 +6,15 @@ import auth from "../reducers/authReducer";
 import notification from "../reducers/notificationReducer";
 import course from "../reducers/courseReducer";
 import studentCourses from "../reducers/studentCourseReducer";
+import usersTable from "../reducers/usersTableReducer"
 
 export default function configureStore(history, initialState) {
   const reducers = {
     auth,
     notification,
     course,
-    studentCourses
+    studentCourses,
+    usersTable
   };
 
   const middleware = [thunk, routerMiddleware(history)];

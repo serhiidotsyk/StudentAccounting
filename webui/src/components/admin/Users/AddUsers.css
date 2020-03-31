@@ -1,0 +1,30 @@
+.add-user-form {
+  max-width: 500px;
+}
+
+.link-button {
+  background-color: transparent;
+  color: #1890ff;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  display: inline;
+  margin: 10px;
+  padding: 0;
+}
+
+.link-button:disabled,
+.link-button[disabled] {
+  cursor: default;
+  color: #666666;
+}
+
+.search-table {
+  background: 0 0;
+  border:none !important;
+  margin-bottom: 15px;
+}
+
+.search-table:focus {
+  outline: 0 !important;
+}

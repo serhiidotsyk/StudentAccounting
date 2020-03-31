@@ -2,15 +2,14 @@ import React from "react";
 import { Route, withRouter, Redirect } from "react-router";
 import { BrowserRouter as Router, Link, NavLink } from "react-router-dom";
 import { connect } from "react-redux";
-import "./App.css";
 
 import Home from "./components/home/Home";
 import Login from "./components/auth/login/Login";
 import Register from "./components/auth/register/Register";
 import CourseCards from "./components/Course/CourseCards/CourseCards";
 import MyCourseCards from "./components/Course/StudentCourseCard/StudentCourseCards";
-//import AdminDashboard from "./components/Admin/Dashboard"
-// import Profile from "./components/profile/Profile";
+import Dashboard from "./components/admin/Dashboard";
+
 import {
   checkAuthRoleStudent,
   checkAuthRoleAdmin
@@ -18,8 +17,9 @@ import {
 import { logout } from "./actions/authAction";
 
 import { Layout, Menu } from "antd";
-
 import logo from "./logo.svg";
+import "./App.css";
+import AddUserFrom from "./components/admin/Users/AddUser";
 
 const { Header, Content, Footer } = Layout;
 
@@ -60,7 +60,10 @@ const App = props => {
               : checkAuthRoleAdmin(isAuthenticated, userRole)
               ? [
                   <Menu.Item key="dashboard">
-                    <Link to="/admin/dashboard">My Courses</Link>
+                    <Link 
+                      to="/admin/dashboard"
+                      onClick={() => window.location.reload()}
+                      >Dashboard</Link>
                   </Menu.Item>,
                   <Menu.Item key="logoutAdmin" onClick={logout.bind(this)}>
                     <Link to="/login">Logout</Link>
@@ -94,10 +97,15 @@ const App = props => {
               : checkAuthRoleAdmin(isAuthenticated, userRole)
               ? [
                   <Route
-                    key="adminDashBoard"
+                    key="adminDashboard"
                     path="/admin/dashboard"
-                    component={MyCourseCards}></Route>,
-                  <Redirect key="adminDashboardRedirect" to="/student/courses" />
+                    component={Dashboard}></Route>,
+                  <Route
+                    key="adminAddUser"
+                    path="/admin/addUser"
+                    component={AddUserFrom}
+                  ></Route>,
+                  <Redirect key="adminDashboardRedirect" to="/admin/dashboard" />
                 ]
               : [
                   <Route key="login" path="/login" component={Login}></Route>,

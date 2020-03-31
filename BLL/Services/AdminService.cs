@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using BLL.Interfaces;
+using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
 using DAL;
 using DAL.Entities;
+using DAL.Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -40,9 +43,40 @@ namespace BLL.Services
             return null;
         }
 
-        public UserModel UpdateStudent(UserModel studentModel, int studentId)
+        public UserModel CreateStudent(UserSignUpModel studentModel)
         {
-            var student = _context.Users.Find(studentId);
+            var isUserExists = _context.Users.Where(u => u.Email == studentModel.Email).SingleOrDefault();
+            if (isUserExists != null)
+                return null;
+
+            var user = _mapper.Map<UserSignUpModel, User>(studentModel, cfg =>
+                cfg.AfterMap((src, dest) =>
+                {
+                    dest.RegisteredDate = DateTime.Now;
+                    dest.RoleId = (int)RoleType.Student;
+                }));
+
+            if (user != null)
+            {
+                _context.Users.Add(user);
+                _context.SaveChanges();
+
+                var userValidation = _mapper.Map<UserModel>(user);
+
+                //string callBackUrl = _mailService.GenerateConfirmationLink(userValidation);
+
+                //_mailService.SendConfirmationLink(userValidation.Email,
+                //    $"Confirm registration following the link: <a href='{callBackUrl}'>Confirm email NOW</a>");
+
+                return userValidation;
+            }
+
+            return null;
+        }
+
+        public UserModel UpdateStudent(UserModel studentModel)
+        {
+            var student = _context.Users.Find(studentModel.Id);
             if (student != null)
             {
                 student = _mapper.Map<UserModel, User>(studentModel, student);

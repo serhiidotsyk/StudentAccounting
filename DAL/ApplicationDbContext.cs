@@ -1,9 +1,6 @@
 ﻿using DAL.Configuration;
 using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DAL
 {
@@ -29,5 +26,6 @@ namespace DAL
         public DbSet<Course> Courses { get; set; }
         public DbSet<UserCourse> UserCourses { get; set; }
         public DbSet<RefreshToken> Tokens { get; set; }
+        public DbSet<ScheduledJob> ScheduledJobs { get; set; }
     }
 }
