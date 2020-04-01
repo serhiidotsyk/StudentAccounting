@@ -4,14 +4,16 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200401101153_changed start and end date to not nullable datetime")]
+    partial class changedstartandenddatetonotnullabledatetime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,8 +31,14 @@ namespace DAL.Migrations
                     b.Property<int>("DurationDays")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -41,7 +49,9 @@ namespace DAL.Migrations
                         {
                             Id = 1,
                             DurationDays = 0,
-                            Name = "IT Step Academy"
+                            EndDate = new DateTime(2020, 6, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "IT Step Academy",
+                            StartDate = new DateTime(2020, 4, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -213,8 +223,8 @@ namespace DAL.Migrations
                         {
                             CourseId = 1,
                             StudentId = 2,
-                            EndDate = new DateTime(2020, 6, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StartDate = new DateTime(2020, 4, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 

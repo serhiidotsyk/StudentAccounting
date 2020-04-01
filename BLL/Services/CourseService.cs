@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.Interfaces;
 using BLL.Models.Course;
+using BLL.Models.ScheduledJob;
 using BLL.Models.UserCourseModel;
 using DAL;
 using DAL.Entities;
@@ -61,9 +62,9 @@ namespace BLL.Services
         public ICollection<CourseInfoModel> GetCoursesByStudentId(int studentId)
         {
             var courses = _context.UserCourses.Include(c => c.Course)
-                                                .Where(u => u.StudentId == studentId)
-                                                  .Select(x => x.Course);
-            if (courses != null)
+                                                .Where(u => u.StudentId == studentId);
+
+            if (courses != null && courses.Count() > 0)
             {
                 return _mapper.Map<ICollection<CourseInfoModel>>(courses);
             }
@@ -97,11 +98,10 @@ namespace BLL.Services
         /// </returns>
         public ICollection<CourseModel> GetAvailableCourses(int userId)
         {
-            //var courses = _context.UserCourses.Include(c => c.Course)
-            //                                    .Where(u => u.UserId != userId)
-            //                                      .Select(x => x.Course);
-            var courses = _context.Courses.Include(uc => uc.UserCourses)//.ToList();
-                                           .Where(uc => uc.UserCourses.Count == 0);
+            var courses = _context.Courses.Include(c => c.UserCourses)
+                                            .Where(uc => uc.UserCourses
+                                             .All(u => u.StudentId != userId) || uc.UserCourses.Count == 0);
+
             if (courses != null)
             {
                 return _mapper.Map<ICollection<CourseModel>>(courses);
@@ -164,28 +164,20 @@ namespace BLL.Services
 
             if (course != null && user != null)
             {
+                var startingDate = DateTimeOffset.FromUnixTimeMilliseconds(subscribeToCourseModel.EnrollmentDate).UtcDateTime;
                 var userCourseModel = new UserCourseModel
                 {
                     CourseId = course.Id,
-                    StudentId = user.Id
+                    StudentId = user.Id,
+                    StartDate = startingDate,
+                    EndDate = startingDate.AddDays((double)course.DurationDays)
                 };
 
                 var userCourse = _mapper.Map<UserCourse>(userCourseModel);
                 _context.UserCourses.Add(userCourse);
-
-                course.StartDate = DateTimeOffset.FromUnixTimeMilliseconds(subscribeToCourseModel.EnrollmentDate).UtcDateTime;
-                course.EndDate = course.StartDate.Value.AddDays((double)course.DurationDays);
-
-                _context.Courses.Update(course);
-
-                user.StudyStart = course.StartDate;
-                _context.Users.Update(user);
-
                 _context.SaveChanges();
 
-                SendScheduledEmailBackground(course.StartDate.Value, ONE_DAY_BEFORE_COURSE_START);
-                SendScheduledEmailBackground(course.StartDate.Value, ONE_WEEK_BEFORE_COURSE_START);
-                SendScheduledEmailBackground(course.StartDate.Value, ONE_MONTH_BEFORE_COURSE_START);
+                SendScheduledEmailBackground(userCourseModel.StartDate, user.Id);
 
                 return _mapper.Map<CourseModel>(course);
             }
@@ -193,17 +185,44 @@ namespace BLL.Services
             return null;
         }
 
-        private void SendScheduledEmailBackground(DateTime startDate, int delayInDays)
+        private void SendScheduledEmailBackground(DateTime startDate, int userId)
         {
-            var timeToSendEmail = startDate.AddDays(delayInDays * -1);
-            if (delayInDays == ONE_DAY_BEFORE_COURSE_START)
+            var oneDayBeforeEmail = startDate.AddDays(ONE_DAY_BEFORE_COURSE_START * -1);
+            var oneWeekBeforeEmail = startDate.AddDays(ONE_WEEK_BEFORE_COURSE_START * -1);
+            var oneMonthBeforeEmail = startDate.AddDays(ONE_MONTH_BEFORE_COURSE_START * -1);
+
+            var days = startDate - DateTime.UtcNow;
+
+            List<ScheduledJobModel> jobModelList = new List<ScheduledJobModel>();
+
+            if (days.Days >= 30)
             {
-                timeToSendEmail = new DateTime(timeToSendEmail.Year, timeToSendEmail.Month, timeToSendEmail.Day, HOUR_TO_SEND_EMAIL, 0, 0);
+                var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
+                                     .SendScheduledEmail($"test scheduled in {ONE_MONTH_BEFORE_COURSE_START} day(-s)"), new DateTimeOffset(oneMonthBeforeEmail));
+                jobModelList.Add(new ScheduledJobModel { Key = key });
+            }
+            if (days.Days >= 14)
+            {
+                var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
+                                     .SendScheduledEmail($"test scheduled in {ONE_WEEK_BEFORE_COURSE_START} day(-s)"), new DateTimeOffset(oneWeekBeforeEmail));
+                jobModelList.Add(new ScheduledJobModel { Key = key });
+            }
+            if (days.Days >= 1)
+            {
+                oneDayBeforeEmail = new DateTime(oneDayBeforeEmail.Year, oneDayBeforeEmail.Month, oneDayBeforeEmail.Day, HOUR_TO_SEND_EMAIL, 0, 0);
+                var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
+                                     .SendScheduledEmail($"test scheduled in {ONE_DAY_BEFORE_COURSE_START} day(-s)"), new DateTimeOffset(oneDayBeforeEmail));
+                jobModelList.Add(new ScheduledJobModel { Key = key });
             }
 
-            DateTimeOffset offsetTime = new DateTimeOffset(timeToSendEmail);
-            
-            _backgroundJob.Schedule<IMailService>(mailService => mailService.SendScheduledEmail($"test scheduled in {delayInDays} day(-s)"), offsetTime);
+            if (jobModelList.Count > 0)
+            {
+                for (int i = 0; i < jobModelList.Count; i++)
+                {
+                    _context.ScheduledJobs.Add(new ScheduledJob { Id = jobModelList[i].Key, UserId = userId});                    
+                }
+                _context.SaveChanges();
+            }
         }
 
         /// <summary>
@@ -215,10 +234,10 @@ namespace BLL.Services
         /// </returns>
         public UserCourseModel UnSubscribeFromCourse(UserCourseModel userCourseModel)
         {
-            var userCourse = _context.UserCourses.Where(uc => uc.StudentId == userCourseModel.StudentId 
+            var userCourse = _context.UserCourses.Where(uc => uc.StudentId == userCourseModel.StudentId
                                                            && uc.CourseId == userCourseModel.CourseId)
                                                             .SingleOrDefault();
-            if(userCourse != null)
+            if (userCourse != null)
             {
                 //var course
 

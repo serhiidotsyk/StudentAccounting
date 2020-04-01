@@ -37,12 +37,18 @@
   min-height: 280px;
   background-color: #ffffff;
 }
-.logo {
-  width: 50px;
+
+.leftpart {
+  /* width: 50px; */
+  width: auto;
   height: 10px;
   /* -background: rgba(255, 255, 255, 0.2); */
   /* margin: 16px 24px 16px 0; */
-  float: left;
+  color: #ffffff;
+}
+.leftpart-logo {
+  height: 10px;
+  width: 50px;
 }
 
 .ant-menu.ant-menu-dark .ant-menu-item-selected.custom-menu-item {

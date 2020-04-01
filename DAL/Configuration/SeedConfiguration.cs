@@ -1,10 +1,7 @@
 ﻿using DAL.Entities;
 using DAL.Shared;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DAL.Configuration
 {
@@ -52,15 +49,15 @@ namespace DAL.Configuration
                 new Course
                 {
                     Id = 1,
-                    Name = "IT Step Academy",
-                    StartDate = new DateTime(2020, 04, 21),
-                    EndDate = new DateTime(2020, 06, 21),
+                    Name = "IT Step Academy"                    
                 });
             modelBuilder.Entity<UserCourse>().HasData(
                 new UserCourse
                 {
                     StudentId = 2,
                     CourseId = 1,
+                    StartDate = new DateTime(2020, 04, 21),
+                    EndDate = new DateTime(2020, 06, 21),
                 });
         }
     }

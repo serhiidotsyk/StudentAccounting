@@ -16,7 +16,7 @@ import {
 } from "./utils/checkAuthRoleHelper";
 import { logout } from "./actions/authAction";
 
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Row, Col } from "antd";
 import logo from "./logo.svg";
 import "./App.css";
 import AddUserFrom from "./components/admin/Users/AddUser";
@@ -35,49 +35,57 @@ const App = props => {
     <Router>
       <Layout className="layout">
         <Header align="end">
-          <div className="logo">
-            <Link to="/">
-              <img src={logo} alt="logo" />
-            </Link>
-          </div>
-          <Menu
-            theme="dark"
-            mode="horizontal"
-            selectedKeys={null}
-            style={{ lineHeight: "64px" }}>
-            {checkAuthRoleStudent(isAuthenticated, userRole)
-              ? [
-                  <Menu.Item key="my-courses">
-                    <Link to="/student/my-courses">My Courses</Link>
-                  </Menu.Item>,
-                  <Menu.Item key="courses">
-                    <Link to="/student/courses">Courses</Link>
-                  </Menu.Item>,
-                  <Menu.Item key="logoutStudent" onClick={logout.bind(this)}>
-                    <Link to="/login">Logout</Link>
-                  </Menu.Item>
-                ]
-              : checkAuthRoleAdmin(isAuthenticated, userRole)
-              ? [
-                  <Menu.Item key="dashboard">
-                    <Link 
-                      to="/admin/dashboard"
-                      onClick={() => window.location.reload()}
-                      >Dashboard</Link>
-                  </Menu.Item>,
-                  <Menu.Item key="logoutAdmin" onClick={logout.bind(this)}>
-                    <Link to="/login">Logout</Link>
-                  </Menu.Item>
-                ]
-              : [
-                  <Menu.Item key="register">
-                    <Link to="/register">Register</Link>
-                  </Menu.Item>,
-                  <Menu.Item key="login">
-                    <NavLink to="/login">Login</NavLink>
-                  </Menu.Item>
-                ]}
-          </Menu>
+          <Row justify="start">
+            <Col span={1}>
+              <Link to="/">
+                <img src={logo} alt="logo" />
+              </Link>
+            </Col>
+            <Col span={4} style={{color: "#ffffff"}}>{props.auth.user.email}</Col>
+            <Col>
+              <Menu
+                theme="dark"
+                mode="horizontal"
+                selectedKeys={null}
+                style={{ lineHeight: "64px" }}>
+                {checkAuthRoleStudent(isAuthenticated, userRole)
+                  ? [
+                      <Menu.Item key="my-courses">
+                        <Link to="/student/my-courses">My Courses</Link>
+                      </Menu.Item>,
+                      <Menu.Item key="courses">
+                        <Link to="/student/courses">Courses</Link>
+                      </Menu.Item>,
+                      <Menu.Item
+                        key="logoutStudent"
+                        onClick={logout.bind(this)}>
+                        <Link to="/login">Logout</Link>
+                      </Menu.Item>
+                    ]
+                  : checkAuthRoleAdmin(isAuthenticated, userRole)
+                  ? [
+                      <Menu.Item key="dashboard">
+                        <Link
+                          to="/admin/dashboard"
+                          onClick={() => window.location.reload()}>
+                          Dashboard
+                        </Link>
+                      </Menu.Item>,
+                      <Menu.Item key="logoutAdmin" onClick={logout.bind(this)}>
+                        <Link to="/login">Logout</Link>
+                      </Menu.Item>
+                    ]
+                  : [
+                      <Menu.Item key="register">
+                        <Link to="/register">Register</Link>
+                      </Menu.Item>,
+                      <Menu.Item key="login">
+                        <NavLink to="/login">Login</NavLink>
+                      </Menu.Item>
+                    ]}
+              </Menu>
+            </Col>
+          </Row>
         </Header>
         <Content>
           <div align="center" className="site-layout-content">
@@ -103,13 +111,18 @@ const App = props => {
                   <Route
                     key="adminAddUser"
                     path="/admin/addUser"
-                    component={AddUserFrom}
-                  ></Route>,
-                  <Redirect key="adminDashboardRedirect" to="/admin/dashboard" />
+                    component={AddUserFrom}></Route>,
+                  <Redirect
+                    key="adminDashboardRedirect"
+                    to="/admin/dashboard"
+                  />
                 ]
               : [
                   <Route key="login" path="/login" component={Login}></Route>,
-                  <Route key="register" path="/register" component={Register}></Route>,
+                  <Route
+                    key="register"
+                    path="/register"
+                    component={Register}></Route>,
                   <Redirect key="loginRedirect" to="/login" />
                 ]}
           </div>

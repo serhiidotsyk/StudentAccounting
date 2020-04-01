@@ -5,6 +5,8 @@ using BLL.Models.StudentProfile;
 using DAL;
 using DAL.Entities;
 using DAL.Shared;
+using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +17,12 @@ namespace BLL.Services
     {
         private protected ApplicationDbContext _context;
         private protected IMapper _mapper;
+        private readonly BackgroundJobClient _backgroundJob;
         public AdminService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
+            _backgroundJob = new BackgroundJobClient();
         }
 
         public StudentInfoModel GetStudent(int studentId)
@@ -91,9 +95,14 @@ namespace BLL.Services
 
         public UserModel Delete(int studentId)
         {
-            var studentToDelete = _context.Users.Find(studentId);
+            var studentToDelete = _context.Users.Include(u => u.ScheduledJobs).Where(u=>u.Id == studentId).SingleOrDefault();
             if (studentToDelete != null)
             {
+                foreach(var item in studentToDelete.ScheduledJobs)
+                {
+                    _backgroundJob.Delete(item.Id);
+                    _context.ScheduledJobs.Remove(item);
+                }
                 _context.Users.Remove(studentToDelete);
                 _context.SaveChanges();
                 return _mapper.Map<UserModel>(studentToDelete);
@@ -110,6 +119,12 @@ namespace BLL.Services
                 var studentToDelete = _context.Users.Find(id);
                 if (studentToDelete != null)
                 {
+                    foreach (var item in studentToDelete.ScheduledJobs)
+                    {
+                        _backgroundJob.Delete(item.Id);
+                        _context.ScheduledJobs.Remove(item);
+                    }
+
                     _context.Users.Remove(studentToDelete);
                     _context.SaveChanges();
 
