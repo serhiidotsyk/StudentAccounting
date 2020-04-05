@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.Helpers.Pagination;
 using BLL.Interfaces;
 using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
@@ -36,15 +37,72 @@ namespace BLL.Services
             return null;
         }
 
-        public ICollection<StudentInfoModel> GetAllStudents()
+        public (ICollection<StudentInfoModel>, int) GetAllStudents(QueryStringParams queryStringParams)
         {
-            var students = _context.Users.ToList();
-            if (students != null)
+            var students = _context.Users.Include(u => u.UserCourses)
+                                          .ThenInclude(uc => uc.Course)
+                                           .Where(u => u.RoleId == (int)RoleType.Student)
+                                            .AsEnumerable();
+
+            if (!string.IsNullOrEmpty(queryStringParams.SearchString))
             {
-                return _mapper.Map<ICollection<StudentInfoModel>>(students);
+                var searchQuery = queryStringParams.SearchString.Split(' ');
+                int age = 0, count = 0;
+                for (int i = 0; i < searchQuery.Length; i++)
+                {
+                    if (int.TryParse(searchQuery[i], out age))
+                    {
+                        count++;
+                    }
+                }
+                if (count > 1)
+                    return (null, 0);
+
+                if (count == 1 && age > 0)
+                {
+                    students = students.Where(s => s.FirstName.Contains(queryStringParams.SearchString)
+                                                  || s.LastName.Contains(queryStringParams.SearchString)
+                                                   || s.Email.Contains(queryStringParams.SearchString)
+                                                    || s.Age == age);
+                }
+                else
+                {
+                    students = students.Where(s => s.FirstName.Contains(queryStringParams.SearchString)
+                                                  || s.LastName.Contains(queryStringParams.SearchString)
+                                                   || s.Email.Contains(queryStringParams.SearchString));
+                }
             }
 
-            return null;
+            if (!string.IsNullOrEmpty(queryStringParams.SortOrder) && !string.IsNullOrEmpty(queryStringParams.SortField))
+            {
+                queryStringParams.SortField = char.ToUpper(queryStringParams.SortField[0])
+                                                    + queryStringParams.SortField.Substring(1);
+                var field = typeof(User).GetProperty(queryStringParams.SortField);
+
+                switch (queryStringParams.SortOrder)
+                {
+                    case "ascend":
+                        {
+                            students = students.OrderBy(x => field.GetValue(x, null));
+                        }
+                        break;
+                    case "descend":
+                        {
+                            students = students.OrderByDescending(x => field.GetValue(x, null));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            var studentsResult = PaginationHelper<User>.GetPageValues(students, queryStringParams.PageSize, queryStringParams.PageNumber);
+
+            if (students != null && studentsResult != null)
+            {
+                return (_mapper.Map<ICollection<StudentInfoModel>>(studentsResult), students.Count());
+            }
+
+            return (null, 0);
         }
 
         public UserModel CreateStudent(UserSignUpModel studentModel)
@@ -65,14 +123,7 @@ namespace BLL.Services
                 _context.Users.Add(user);
                 _context.SaveChanges();
 
-                var userValidation = _mapper.Map<UserModel>(user);
-
-                //string callBackUrl = _mailService.GenerateConfirmationLink(userValidation);
-
-                //_mailService.SendConfirmationLink(userValidation.Email,
-                //    $"Confirm registration following the link: <a href='{callBackUrl}'>Confirm email NOW</a>");
-
-                return userValidation;
+                return _mapper.Map<UserModel>(user);
             }
 
             return null;
@@ -87,7 +138,7 @@ namespace BLL.Services
                 _context.Users.Update(student);
                 _context.SaveChanges();
 
-                return studentModel;
+                return _mapper.Map<UserModel>(student);
             }
 
             return null;
@@ -95,10 +146,10 @@ namespace BLL.Services
 
         public UserModel Delete(int studentId)
         {
-            var studentToDelete = _context.Users.Include(u => u.ScheduledJobs).Where(u=>u.Id == studentId).SingleOrDefault();
+            var studentToDelete = _context.Users.Include(u => u.ScheduledJobs).Where(u => u.Id == studentId).SingleOrDefault();
             if (studentToDelete != null)
             {
-                foreach(var item in studentToDelete.ScheduledJobs)
+                foreach (var item in studentToDelete.ScheduledJobs)
                 {
                     _backgroundJob.Delete(item.Id);
                     _context.ScheduledJobs.Remove(item);

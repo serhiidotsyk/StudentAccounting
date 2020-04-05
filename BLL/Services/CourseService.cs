@@ -177,7 +177,7 @@ namespace BLL.Services
                 _context.UserCourses.Add(userCourse);
                 _context.SaveChanges();
 
-                SendScheduledEmailBackground(userCourseModel.StartDate, user.Id);
+                SendScheduledEmailBackground(userCourseModel.StartDate,user.Email, user.Id);
 
                 return _mapper.Map<CourseModel>(course);
             }
@@ -185,7 +185,7 @@ namespace BLL.Services
             return null;
         }
 
-        private void SendScheduledEmailBackground(DateTime startDate, int userId)
+        private void SendScheduledEmailBackground(DateTime startDate,string email, int userId)
         {
             var oneDayBeforeEmail = startDate.AddDays(ONE_DAY_BEFORE_COURSE_START * -1);
             var oneWeekBeforeEmail = startDate.AddDays(ONE_WEEK_BEFORE_COURSE_START * -1);
@@ -198,20 +198,28 @@ namespace BLL.Services
             if (days.Days >= 30)
             {
                 var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
-                                     .SendScheduledEmail($"test scheduled in {ONE_MONTH_BEFORE_COURSE_START} day(-s)"), new DateTimeOffset(oneMonthBeforeEmail));
+                                     .SendScheduledEmail(email, $"test scheduled in {ONE_MONTH_BEFORE_COURSE_START} day(-s)"), 
+                                     new DateTimeOffset(oneMonthBeforeEmail));
+
                 jobModelList.Add(new ScheduledJobModel { Key = key });
             }
             if (days.Days >= 14)
             {
                 var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
-                                     .SendScheduledEmail($"test scheduled in {ONE_WEEK_BEFORE_COURSE_START} day(-s)"), new DateTimeOffset(oneWeekBeforeEmail));
+                                     .SendScheduledEmail(email, $"test scheduled in {ONE_WEEK_BEFORE_COURSE_START} day(-s)"), 
+                                     new DateTimeOffset(oneWeekBeforeEmail));
+
                 jobModelList.Add(new ScheduledJobModel { Key = key });
             }
             if (days.Days >= 1)
             {
                 oneDayBeforeEmail = new DateTime(oneDayBeforeEmail.Year, oneDayBeforeEmail.Month, oneDayBeforeEmail.Day, HOUR_TO_SEND_EMAIL, 0, 0);
                 var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
-                                     .SendScheduledEmail($"test scheduled in {ONE_DAY_BEFORE_COURSE_START} day(-s)"), new DateTimeOffset(oneDayBeforeEmail));
+                                     .SendScheduledEmail(email, $"test scheduled in {ONE_DAY_BEFORE_COURSE_START} day(-s)"), 
+                                     new DateTimeOffset(oneDayBeforeEmail));
+                
+                _backgroundJob.Enqueue<IMailService>(mailService => mailService
+                                     .SendScheduledEmail(email, $"test scheduled in {days.Days} day(-s)"));
                 jobModelList.Add(new ScheduledJobModel { Key = key });
             }
 
@@ -239,8 +247,6 @@ namespace BLL.Services
                                                             .SingleOrDefault();
             if (userCourse != null)
             {
-                //var course
-
                 _context.UserCourses.Remove(userCourse);
                 _context.SaveChanges();
                 return _mapper.Map<UserCourseModel>(userCourse);

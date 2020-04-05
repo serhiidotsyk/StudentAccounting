@@ -5,6 +5,7 @@ import {
 } from "../actions/types";
 
 const intitialState = {
+  count:0,
   users: []
 };
 
@@ -12,6 +13,7 @@ export default (state = intitialState, action = {}) => {
   switch (action.type) {
     case GET_ALL_USERS:
       return {
+        count: action.count,
         users: action.users
       };
     case UPDATE_USER:
@@ -27,6 +29,7 @@ export default (state = intitialState, action = {}) => {
       };
     case DELETE_USER:
       return {
+        count: state.count-1,
         users: state.users.filter(({ id }) => id !== action.user.id)
       };
     default:

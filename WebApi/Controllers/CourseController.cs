@@ -69,6 +69,8 @@ namespace WebApi.Controllers
         [HttpPost("createCourse")]
         public IActionResult CreateCourse(CourseModel courseModel)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             var course = _courseService.CreateCourse(courseModel);
             if (course != null)
             {
@@ -82,6 +84,8 @@ namespace WebApi.Controllers
         [HttpPut("updateCourse")]
         public IActionResult UpdateCourse(CourseModel courseModel, int courseId)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             var course = _courseService.UpdateCourse(courseModel, courseId);
             if (course != null)
             {
@@ -94,6 +98,8 @@ namespace WebApi.Controllers
         [HttpPut("subscribeToCourse")]
         public IActionResult SubscribeToCourse(SubscribeToCourseModel subscribeToCourseModel)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             var course = _courseService.SubscribeToCourse(subscribeToCourseModel);
             if (course != null)
             {
@@ -106,6 +112,8 @@ namespace WebApi.Controllers
         [HttpPut("unSubscribeFromCourse")]
         public IActionResult UnSubscribeFromCourse(UserCourseModel userCourseModel)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             var course = _courseService.UnSubscribeFromCourse(userCourseModel);
             if(course != null)
             {

@@ -26,6 +26,10 @@ const { Header, Content, Footer } = Layout;
 const App = props => {
   const logout = () => {
     props.logout();
+    
+    // window.FB.logout(function(response) {
+    //   console.log(response);
+    // });
   };
 
   const { isAuthenticated } = props.auth;
@@ -41,7 +45,9 @@ const App = props => {
                 <img src={logo} alt="logo" />
               </Link>
             </Col>
-            <Col span={4} style={{color: "#ffffff"}}>{props.auth.user.email}</Col>
+            <Col span={4} style={{ color: "#ffffff" }}>
+              {props.auth.user.email}
+            </Col>
             <Col>
               <Menu
                 theme="dark"
@@ -56,9 +62,7 @@ const App = props => {
                       <Menu.Item key="courses">
                         <Link to="/student/courses">Courses</Link>
                       </Menu.Item>,
-                      <Menu.Item
-                        key="logoutStudent"
-                        onClick={logout.bind(this)}>
+                      <Menu.Item key="logoutStudent" onClick={logout}>
                         <Link to="/login">Logout</Link>
                       </Menu.Item>
                     ]
@@ -71,7 +75,7 @@ const App = props => {
                           Dashboard
                         </Link>
                       </Menu.Item>,
-                      <Menu.Item key="logoutAdmin" onClick={logout.bind(this)}>
+                      <Menu.Item key="logoutAdmin" onClick={logout}>
                         <Link to="/login">Logout</Link>
                       </Menu.Item>
                     ]

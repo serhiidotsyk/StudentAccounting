@@ -1,6 +1,5 @@
-﻿using System;
+﻿using BLL.Models.Course;
 using System.Collections.Generic;
-using System.Text;
 
 namespace BLL.Models.StudentProfile
 {
@@ -11,6 +10,6 @@ namespace BLL.Models.StudentProfile
         public string LastName { get; set; }
         public int Age { get; set; }
         public string Email { get; set; }
-        public DateTime DateCreated { get; set; }
+        public ICollection<CourseInfoModel> Courses { get; set; }
     }
 }

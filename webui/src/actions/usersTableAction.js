@@ -1,22 +1,18 @@
 import axios from "axios";
-import { 
-  GET_ALL_USERS, 
-  UPDATE_USER, 
-  DELETE_USER,
-  DELETE_USERS
-} from "./types";
+import { GET_ALL_USERS, UPDATE_USER, DELETE_USER, DELETE_USERS } from "./types";
 
-import { 
-  API_GET_ALL_USERS, 
-  API_UPDATE_USER, 
+import {
+  API_GET_ALL_USERS,
+  API_UPDATE_USER,
   API_DELETE_USER,
-  API_DELETE_USERS 
+  API_DELETE_USERS
 } from "../config";
 
-export function getUsers(users) {
+export function getUsers(users, count) {
   return {
     type: GET_ALL_USERS,
-    users
+    users,
+    count
   };
 }
 
@@ -41,11 +37,40 @@ export function deleteUsers(users) {
   };
 }
 
-export function getAllUsers() {
+const dateConvert = formatDate => {
+  return new Date(formatDate.concat("Z")).toLocaleString();
+};
+
+export function getAllUsers({
+  pageNumber,
+  pageSize,
+  searchString,
+  sortOrder,
+  sortField
+}) {
   return dispatch => {
-    return axios.get(API_GET_ALL_USERS).then(res => {
-      dispatch(getUsers(res.data));
-    });
+    return axios
+      .get(API_GET_ALL_USERS, {
+        params: {
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          searchString: searchString,
+          sortOrder: sortOrder,
+          sortField: sortField
+        }
+      })
+      .then(res => {
+        const users = res.data.student.map(user => {
+          user.courses.map(course => {
+            course.startDate = dateConvert(course.startDate);
+            course.endDate = dateConvert(course.endDate);
+            return course;
+          });
+          return user;
+        });
+        const count = res.data.count;
+        dispatch(getUsers(users, count));
+      });
   };
 }
 
@@ -60,16 +85,20 @@ export function updateStudent(user) {
 
 export function deleteStudent(studentId) {
   return dispatch => {
-    return axios.delete(API_DELETE_USER, { params:{ studentId: studentId}}).then(res => {
-      dispatch(deleteUser(res.data));
-    })
+    return axios
+      .delete(API_DELETE_USER, { params: { studentId: studentId } })
+      .then(res => {
+        dispatch(deleteUser(res.data));
+      });
   };
 }
 
 export function deleteStudents(studentIds) {
   return dispatch => {
-    return axios.delete(API_DELETE_USERS, { params:{ studentId: studentIds}}).then(res => {
-      dispatch(deleteUser(res.data));
-    })
+    return axios
+      .delete(API_DELETE_USERS, { params: { studentIds: studentIds } })
+      .then(res => {
+        dispatch(deleteUser(res.data));
+      });
   };
 }

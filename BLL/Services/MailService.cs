@@ -74,11 +74,11 @@ namespace BLL.Services
             return null;
         }
 
-        public void SendScheduledEmail(string sendMessage)
+        public void SendScheduledEmail(string email, string sendMessage)
         {
             var message = new MailMessage();
             message.From = new MailAddress(_emailConfig.SenderAdress);
-            message.To.Add(new MailAddress("dosyk00@gmail.com"));
+            message.To.Add(new MailAddress(email));
             message.Subject = _emailConfig.Subject;
             message.Body = sendMessage;
 

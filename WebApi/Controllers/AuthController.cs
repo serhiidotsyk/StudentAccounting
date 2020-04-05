@@ -20,6 +20,8 @@ namespace WebApi.Controllers
         [HttpPost("register")]
         public  IActionResult Register(UserSignUpModel userSignUpModel)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Model is not valid" });
             var user = _authService.SignUp(userSignUpModel);
             if (user != null)
             {
@@ -45,6 +47,8 @@ namespace WebApi.Controllers
         [HttpPost("signIn")]
         public IActionResult SignIn(UserSignInModel userSignInModel)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Model is not valid" });
             var (state ,user) = _authService.SignIn(userSignInModel);            
             if(state)
             {
@@ -59,6 +63,27 @@ namespace WebApi.Controllers
             }
 
             return NotFound(new { message = "You have entered an invalid username or password" });
+        }
+        [HttpPost("socialLogin")]
+        public IActionResult SocialLogin(UserSocialLogin userSocialLogin)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var (state, user) = _authService.SocialLogin(userSocialLogin);
+            if (state)
+            {
+                var access_token = new JwtSecurityTokenHandler().WriteToken(_tokenService.GenerateAccessToken(user.Id));
+                var refresh_token = _tokenService.GenerateRefreshToken(user).Token;
+
+                return Ok(new
+                {
+                    access_token,
+                    refresh_token
+                });
+            }
+            return NotFound(new { message = "Couldnt login via exernal provider" });
         }
 
         [HttpPost("refreshToken")]

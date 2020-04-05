@@ -4,16 +4,21 @@ import { connect } from "react-redux";
 import { unSubToCourse } from "../../../actions/courseAction"
 
 const StudentCourseCard = props => {
-
+  console.log(props);
   const courses = props.courses;
   const studentId = props.studentId;
-  
+
+  const { isLoading, setIsLoading } = props;
   const dateConvert = (formatDate) => {
     return new Date(formatDate.concat("Z")).toLocaleString();
   }
   const unSubscribeFromCourse = (courseId, studentId) => {
-    props.unSubToCourse({courseId, studentId });
-  }
+    setIsLoading(true);
+    console.log(isLoading);
+    props.unSubToCourse({courseId, studentId }).then(res =>{
+      setIsLoading(false);
+    })
+  };
 
   return (
     <Row gutter={10}>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BLL.Models.StudentProfile
+﻿namespace BLL.Models.StudentProfile
 {
     public class UserModel
     {

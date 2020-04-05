@@ -13,6 +13,8 @@ import {
   API_GET_SUBSCRIBED_COURSES
 } from "../config";
 
+import { notification } from "antd";
+
 export function getAllCourses(courses) {
   return {
     type: GET_ALL_COURSES,
@@ -44,7 +46,6 @@ export function getCoursesByStudent(courses)
 
 
 export function getCourses(studentId) {
-  console.log(studentId);
   return dispatch => {
     return axios.get(API_GET_AVAILABLE_COURSES, { params:{ studentId: studentId}}).then(res => {
       console.log(res);
@@ -59,8 +60,16 @@ export function subToCourse(data){
     return axios.put(API_SUBSCRIBE_TO_COURSE, data).then(res => {
       console.log(res);
       dispatch(subscribeToCourse(data));
-    });
+      openNotification("Successfult subscribed to course")
+    }).then(
+    );
   };
+}
+
+const openNotification = (title, errors) => {
+  notification.success  ({
+    message: `${title}`,
+  });
 }
 
 export function unSubToCourse(data){

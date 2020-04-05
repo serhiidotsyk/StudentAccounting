@@ -16,7 +16,8 @@ namespace WebApi.MapperProfiler
                 .ForMember(u => u.Password, cfg => cfg.Ignore());
 
             // Mapping StudentInfoModel and User (also reverse)
-            CreateMap<User, StudentInfoModel>();
+            CreateMap<User, StudentInfoModel>()
+                .ForMember(u => u.Courses, uc => uc.MapFrom(c => c.UserCourses));
             CreateMap<StudentInfoModel, User>();
         }
     }

@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using WebApi.Extensions;
 using Hangfire;
 using Hangfire.SqlServer;
+using FluentValidation.AspNetCore;
 
 namespace WebApi
 {
@@ -86,6 +87,11 @@ namespace WebApi
                                                      UsePageLocksOnDequeue = true,
                                                      DisableGlobalLocks = true
                                                  }));
+
+            // configure validators
+            services.AddMvc()
+                .AddFluentValidation();
+            services.ConfigureValidators();
 
             // Dependency Injection
             services.AddScoped<IStudentProfileService, StudentProfileService>();

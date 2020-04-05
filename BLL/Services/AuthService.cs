@@ -39,6 +39,43 @@ namespace BLL.Services
 
         }
 
+        public (bool, UserModel) SocialLogin(UserSocialLogin userSocialLogin)
+        {
+            var user = _context.Users.Where(u => u.Email == userSocialLogin.Email).SingleOrDefault();
+
+            if (user == null)
+            {
+                return (true, SocialSignUp(userSocialLogin));
+            }
+            if (user.Email == userSocialLogin.Email)
+            {
+                return (true, _mapper.Map<UserModel>(user));
+            }
+            else
+            {
+                return (false, null);
+            }
+        }
+
+        private UserModel SocialSignUp(UserSocialLogin userSocialLogin)
+        {
+            var user = _mapper.Map<UserSocialLogin, User>(userSocialLogin, cfg =>
+                cfg.AfterMap((src, dest) =>
+                {
+                    dest.RegisteredDate = DateTime.Now;
+                    dest.Age = new DateTime((DateTime.UtcNow - Convert.ToDateTime(src.BirthDate)).Ticks).Year;
+                    dest.RoleId = (int)RoleType.Student;
+                }));
+
+            if(user != null)
+            {
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                return _mapper.Map<UserModel>(user);
+            }
+            return null;
+        }
+
         public UserModel SignUp(UserSignUpModel userSignUpModel)
         {
             var isUserExists = _context.Users.Where(u => u.Email == userSignUpModel.Email).SingleOrDefault();

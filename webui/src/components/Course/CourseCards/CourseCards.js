@@ -5,7 +5,6 @@ import { getCourses } from "../../../actions/courseAction";
 import "./CourseCards.css"
 
 const CourseCards = ({ getCourses, studentId, ...props }) => {
-
   useEffect(() => {
     getCourses(studentId);
   }, [getCourses, studentId]);

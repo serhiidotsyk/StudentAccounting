@@ -1,11 +1,12 @@
-﻿using BLL.Interfaces;
+﻿using BLL.Helpers.Pagination;
+using BLL.Interfaces;
 using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
-{    
+{
     [Route("api/admin")]
     [Authorize(Roles = "Admin")]
     [ApiController]
@@ -29,12 +30,16 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getAllStudents")]
-        public IActionResult GetAllStudents()
+        public IActionResult GetAllStudents([FromQuery] QueryStringParams queryStringParams)
         {
-            var student = _adminService.GetAllStudents();
+            var (student, count)= _adminService.GetAllStudents(queryStringParams);
             if (student != null)
             {
-                return Ok(student);
+                return Ok(new
+                {
+                    student,
+                    count
+                });
             }
             return BadRequest(new { message = "Couldnt find any student" });
         }
@@ -42,6 +47,8 @@ namespace WebApi.Controllers
         [HttpPost("createStudent")]
         public IActionResult CreateStudent(UserSignUpModel userModel)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Model is not valid"});
             var student = _adminService.CreateStudent(userModel);
             if(student != null)
             {
@@ -53,6 +60,8 @@ namespace WebApi.Controllers
         [HttpPut("updateStudent")]
         public IActionResult UpdateStudent(UserModel studentModel)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid model for update" });
             var student = _adminService.UpdateStudent(studentModel);
             if(student != null)
             {
