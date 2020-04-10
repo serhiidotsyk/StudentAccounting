@@ -102,7 +102,7 @@ namespace BLL.Services
                                             .Where(uc => uc.UserCourses
                                              .All(u => u.StudentId != userId) || uc.UserCourses.Count == 0);
 
-            if (courses != null)
+            if (courses != null && courses.Count() > 0)
             {
                 return _mapper.Map<ICollection<CourseModel>>(courses);
             }
@@ -247,10 +247,20 @@ namespace BLL.Services
                                                             .SingleOrDefault();
             if (userCourse != null)
             {
+                var user = _context.Users.Include(u => u.ScheduledJobs).Where(u => u.Id == userCourseModel.StudentId).SingleOrDefault();
+                if (user != null)
+                {
+                    foreach (var item in user.ScheduledJobs)
+                    {
+                        _backgroundJob.Delete(item.Id);
+                        _context.ScheduledJobs.Remove(item);
+                    }
+                }
+
                 _context.UserCourses.Remove(userCourse);
                 _context.SaveChanges();
                 return _mapper.Map<UserCourseModel>(userCourse);
-            }
+            }   
             return null;
         }
 

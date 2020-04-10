@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.Exceptions;
 using BLL.Helpers.Pagination;
 using BLL.Interfaces;
 using BLL.Models.Auth;
@@ -34,7 +35,7 @@ namespace BLL.Services
                 return _mapper.Map<StudentInfoModel>(student);
             }
 
-            return null;
+            throw new NotFoundException("User was not found");
         }
 
         public (ICollection<StudentInfoModel>, int) GetAllStudents(QueryStringParams queryStringParams)

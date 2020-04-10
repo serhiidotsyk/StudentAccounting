@@ -22,7 +22,7 @@ namespace WebApi.Controllers
             if (student != null)
                 return Ok(student);
 
-            return BadRequest(new { message = "Couldnt find student" });
+            return BadRequest(new { title = "Couldnt find student" });
         }
     }
 }

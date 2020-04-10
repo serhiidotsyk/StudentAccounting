@@ -115,6 +115,7 @@ namespace WebApi
 
             app.UseCors("CorsPolicy");
 
+            app.UseCustomExceptionMiddleware();
 
             app.UseRouting();
             

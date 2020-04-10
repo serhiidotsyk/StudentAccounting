@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using BLL.Interfaces;
 using BLL.Models.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -17,21 +18,22 @@ namespace WebApi.Controllers
             _tokenService = tokenService;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public  IActionResult Register(UserSignUpModel userSignUpModel)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { message = "Model is not valid" });
+                return BadRequest(new { title = "Model is not valid" });
             var user = _authService.SignUp(userSignUpModel);
             if (user != null)
             {
                 return Ok(new
                 {
-                    message = "User was successfully registered"
+                    title = "User was successfully registered"
                 });
             }
 
-            return BadRequest(new { message = "User was not registered" });
+            return BadRequest(new { title = "User was not registered" });
         }
 
         [HttpGet("ConfirmEmail")]
@@ -45,10 +47,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("signIn")]
+        [AllowAnonymous]
         public IActionResult SignIn(UserSignInModel userSignInModel)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { message = "Model is not valid" });
+                return BadRequest(new { title = "Model is not valid" });
             var (state ,user) = _authService.SignIn(userSignInModel);            
             if(state)
             {
@@ -62,7 +65,7 @@ namespace WebApi.Controllers
                 });
             }
 
-            return NotFound(new { message = "You have entered an invalid username or password" });
+            return NotFound(new { title = "You have entered an invalid username or password" });
         }
         [HttpPost("socialLogin")]
         public IActionResult SocialLogin(UserSocialLogin userSocialLogin)
@@ -83,7 +86,7 @@ namespace WebApi.Controllers
                     refresh_token
                 });
             }
-            return NotFound(new { message = "Couldnt login via exernal provider" });
+            return NotFound(new { title = "Couldnt login via exernal provider" });
         }
 
         [HttpPost("refreshToken")]
@@ -92,7 +95,7 @@ namespace WebApi.Controllers
             var refreshedToken = _tokenService.ValidateRefreshToken(refreshTokenModel);
             if (refreshedToken == null)
             {
-                return BadRequest(new { message = "invalid_grant" });
+                return BadRequest(new { title = "invalid_grant" });
             }
 
             return Ok(new

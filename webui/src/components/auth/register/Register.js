@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import { register } from "../../../actions/authAction";
 
-import { Form, Input, Button } from "antd";
+import { Form, Input, Button, Row, Col } from "antd";
 import "./Register.css";
 
 const formItemLayout = {
@@ -52,6 +52,8 @@ const Register = props => {
   };  
 
   const form = (
+    <Row allign="middle" justify="center" style={{paddingTop:"50px"}}>
+      <Col md={14} sm={18} xl={8}>
     <Form
       className="register-form"  
       {...formItemLayout}
@@ -167,6 +169,8 @@ const Register = props => {
         </Button>
       </Form.Item>
     </Form>
+    </Col>
+    </Row>
   );
   return done ? <Redirect to="/login" /> : form;
 };

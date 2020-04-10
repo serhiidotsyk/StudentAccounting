@@ -1,93 +1,96 @@
 import axios from "axios";
-import { 
-  GET_ALL_COURSES, 
+import {
+  GET_ALL_COURSES,
   SUBSCRIBE_TO_COURSE,
   UNSUBSCRIBE_TO_COURSE,
-  GET_ALL_COURSES_BY_STUDENT 
-}  from "./types";
+  GET_ALL_COURSES_BY_STUDENT,
+} from "./types";
 
-import { 
-  API_GET_AVAILABLE_COURSES, 
-  API_SUBSCRIBE_TO_COURSE, 
+import {
+  API_GET_AVAILABLE_COURSES,
+  API_SUBSCRIBE_TO_COURSE,
   API_UNSUBSCRIBE_TO_COURSE,
-  API_GET_SUBSCRIBED_COURSES
+  API_GET_SUBSCRIBED_COURSES,
 } from "../config";
 
-import { notification } from "antd";
+import { openNotification } from "../services/notifications";
+import { trackPromise } from "react-promise-tracker";
 
 export function getAllCourses(courses) {
   return {
     type: GET_ALL_COURSES,
-    courses
+    courses,
   };
 }
 
 export function subscribeToCourse(course) {
   return {
     type: SUBSCRIBE_TO_COURSE,
-    course
-  }
+    course,
+  };
 }
-export function unSubscribeToCourse(course)
-{
+export function unSubscribeToCourse(course) {
   return {
     type: UNSUBSCRIBE_TO_COURSE,
-    course
-  }
-}
-
-export function getCoursesByStudent(courses)
-{
-  return {
-    type: GET_ALL_COURSES_BY_STUDENT,
-    courses
-  }
-}
-
-
-export function getCourses(studentId) {
-  return dispatch => {
-    return axios.get(API_GET_AVAILABLE_COURSES, { params:{ studentId: studentId}}).then(res => {
-      console.log(res);
-      dispatch(getAllCourses(res.data))
-    });
+    course,
   };
 }
 
-export function subToCourse(data){
-  return dispatch => {
-    console.log(data);
-    return axios.put(API_SUBSCRIBE_TO_COURSE, data).then(res => {
-      console.log(res);
-      dispatch(subscribeToCourse(data));
-      openNotification("Successfult subscribed to course")
-    }).then(
+export function getCoursesByStudent(courses) {
+  return {
+    type: GET_ALL_COURSES_BY_STUDENT,
+    courses,
+  };
+}
+
+export function getCourses(studentId) {
+  return (dispatch) => {
+    return trackPromise(
+      axios
+        .get(API_GET_AVAILABLE_COURSES, { params: { studentId: studentId } })
+        .then((res) => {
+          console.log(res);
+          dispatch(getAllCourses(res.data));
+        })
     );
   };
 }
 
-const openNotification = (title, errors) => {
-  notification.success  ({
-    message: `${title}`,
-  });
+export function subToCourse(data) {
+  return (dispatch) => {
+    console.log(data);
+    return trackPromise(
+      axios.put(API_SUBSCRIBE_TO_COURSE, data).then((res) => {
+        console.log(res);
+        dispatch(subscribeToCourse(data));
+        openNotification.success("Successfuly subscribed to course");
+      })
+    );
+  };
 }
 
-export function unSubToCourse(data){
-  return dispatch => {
+export function unSubToCourse(data) {
+  return (dispatch) => {
     console.log(data);
-    return axios.put(API_UNSUBSCRIBE_TO_COURSE, data).then(res => {
-      console.log(res);
-      dispatch(unSubscribeToCourse(data));
-    });
+    return trackPromise(
+      axios.put(API_UNSUBSCRIBE_TO_COURSE, data).then((res) => {
+        console.log(res);
+        dispatch(unSubscribeToCourse(data));
+        openNotification.success("Successfuly unsubscribed to course");
+      })
+    );
   };
 }
 
 export function getStudentCourses(studentId) {
   console.log(studentId);
-  return dispatch => {
-    return axios.get(API_GET_SUBSCRIBED_COURSES, { params:{ studentId: studentId}}).then(res => {
-      console.log(res);
-      dispatch(getCoursesByStudent(res.data))
-    });
+  return (dispatch) => {
+    return trackPromise(
+      axios
+        .get(API_GET_SUBSCRIBED_COURSES, { params: { studentId: studentId } })
+        .then((res) => {
+          dispatch(getCoursesByStudent(res.data));
+        })
+    );
   };
 }

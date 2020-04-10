@@ -26,7 +26,7 @@ namespace WebApi.Controllers
                 return Ok(course);
             }
 
-            return BadRequest(new { message = "Couldnt find course" });
+            return BadRequest(new { title = "Couldnt find course" });
         }
 
         [HttpGet("getCourses")]
@@ -38,7 +38,7 @@ namespace WebApi.Controllers
                 return Ok(courses);
             }
 
-            return BadRequest(new { message = "Couldnt find course" });
+            return BadRequest(new { title = "Couldnt find course" });
         }
 
         [HttpGet("getAvailableCourses")]
@@ -50,7 +50,7 @@ namespace WebApi.Controllers
                 return Ok(courses);
             }   
 
-            return BadRequest(new { message = "Couldnt find course" });
+            return BadRequest(new { title = "Couldnt find course" });
         }
 
         [HttpGet("getCoursesByStudentId")]
@@ -62,7 +62,7 @@ namespace WebApi.Controllers
                 return Ok(courses);
             }
 
-            return BadRequest(new { message = "Couldnt find course" });
+            return BadRequest(new { title = "Couldnt find course" });
         }
 
         [Authorize(Roles = "Admin")]
@@ -77,7 +77,7 @@ namespace WebApi.Controllers
                 return Ok(course);
             }
 
-            return BadRequest(new { message = "Couldnt create course" });
+            return BadRequest(new { title = "Couldnt create course" });
         }
 
         [Authorize(Roles = "Admin")]
@@ -92,7 +92,7 @@ namespace WebApi.Controllers
                 return Ok(course);
             }
 
-            return BadRequest(new { message = "Couldnt update course" });
+            return BadRequest(new { title = "Couldnt update course" });
         }
 
         [HttpPut("subscribeToCourse")]
@@ -106,7 +106,7 @@ namespace WebApi.Controllers
                 return Ok(course);
             }
 
-            return BadRequest(new { message = "Couldnt subscribe to course" });
+            return BadRequest(new { title = "Couldnt subscribe to course" });
         }
 
         [HttpPut("unSubscribeFromCourse")]
@@ -119,7 +119,7 @@ namespace WebApi.Controllers
             {
                 return Ok(course);
             }
-            return BadRequest(new { message = "Couldnt unsubscribe to course" });
+            return BadRequest(new { title = "Couldnt unsubscribe to course" });
         }
 
         [Authorize(Roles = "Admin")]
@@ -132,7 +132,7 @@ namespace WebApi.Controllers
                 return Ok(course);
             }
 
-            return BadRequest(new { message = "Couldnt delete course" });
+            return BadRequest(new { title = "Couldnt delete course" });
         }
 
         [Authorize(Roles = "Admin")]
@@ -145,7 +145,7 @@ namespace WebApi.Controllers
                 return Ok(course);
             }
 
-            return BadRequest(new { message = "Couldnt delete courses" });
+            return BadRequest(new { title = "Couldnt delete courses" });
         }
 
     }

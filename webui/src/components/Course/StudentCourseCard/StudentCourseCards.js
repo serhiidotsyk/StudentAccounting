@@ -1,34 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import StudentCourseCard from "./StudentCourseCard";
 import { connect } from "react-redux";
 import { getStudentCourses } from "../../../actions/courseAction";
-import { Spin } from "antd";
+import { Empty, Row } from "antd";
 
 const StudentCourseCards = ({ getStudentCourses, studentId, ...props }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     getStudentCourses(studentId);
   }, [getStudentCourses, studentId]);
 
   const { studentCourses } = props.studentCourses;
   return (
-    <Spin spinning={isLoading}>
-    <div className="site-card-wrapper">
-      <StudentCourseCard
-        courses={studentCourses}
-        studentId={parseInt(studentId, 10)}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}></StudentCourseCard>
-    </div>
-    </Spin>
+    <Row gutter={[10, 10]}>
+      {studentCourses.length > 0 ? (
+        studentCourses.map((course) => (
+          <StudentCourseCard
+            key={course.id}
+            course={course}
+            studentId={parseInt(studentId, 10)}></StudentCourseCard>
+        ))
+      ) : (
+        <Empty />
+      )}
+    </Row>
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     studentCourses: state.studentCourses,
-    studentId: state.auth.user.id
+    studentId: state.auth.user.id,
   };
 };
 

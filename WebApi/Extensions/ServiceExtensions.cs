@@ -10,6 +10,8 @@ using BLL.Models.Course;
 using BLL.Models.UserCourseModel;
 using BLL.Models.StudentProfile;
 using BLL.Helpers.FluentValidation.User;
+using Microsoft.AspNetCore.Builder;
+using WebApi.Middleware;
 
 namespace WebApi.Extensions
 {
@@ -26,6 +28,7 @@ namespace WebApi.Extensions
             {
                 //s.OperationFilter<AddAuthHeaderParam.AddAuthHeaderParam>();
                 s.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "StudentAccounting", Version = "v1" });
+               
             });
         }
 
@@ -50,6 +53,11 @@ namespace WebApi.Extensions
 
             // User Fluent Validation
             services.AddTransient<IValidator<UserModel>, UserValidation>();
+        }
+
+        public static void UseCustomExceptionMiddleware(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
         }
     }
 }

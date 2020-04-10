@@ -14,6 +14,8 @@ import "./index.css";
 import "antd/dist/antd.css";
 import { Router } from "react-router-dom";
 
+import ErrorBoundary from "./components/ErrorBoundary";
+
 // Create browser history to use in the Redux store
 const history = createBrowserHistory();
 
@@ -35,7 +37,9 @@ const rootElement = document.getElementById("root");
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </Router>
   </Provider>,
   rootElement

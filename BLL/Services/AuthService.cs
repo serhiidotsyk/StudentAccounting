@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.Exceptions;
 using BLL.Interfaces;
 using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
@@ -26,7 +27,7 @@ namespace BLL.Services
             var user = _context.Users.Where(u => u.Email == userSignInModel.Email).SingleOrDefault();
             if (user == null)
             {
-                return (false, null);
+                throw new NotFoundException();
             }
             if (user.Password.Equals(userSignInModel.Password) && user.IsEmailComfirmed == true)
             {

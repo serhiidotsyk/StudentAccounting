@@ -1,42 +1,36 @@
 import React from "react";
-import { Card, Col, Row, Button} from "antd";
+import { Card, Col, Button, Row } from "antd";
 import { connect } from "react-redux";
-import { unSubToCourse } from "../../../actions/courseAction"
+import { unSubToCourse } from "../../../actions/courseAction";
 
-const StudentCourseCard = props => {
+const StudentCourseCard = (props) => {
   console.log(props);
-  const courses = props.courses;
+  const course = props.course;
   const studentId = props.studentId;
 
-  const { isLoading, setIsLoading } = props;
   const dateConvert = (formatDate) => {
     return new Date(formatDate.concat("Z")).toLocaleString();
-  }
+  };
+
   const unSubscribeFromCourse = (courseId, studentId) => {
-    setIsLoading(true);
-    console.log(isLoading);
-    props.unSubToCourse({courseId, studentId }).then(res =>{
-      setIsLoading(false);
-    })
+    props.unSubToCourse({ courseId, studentId });
   };
 
   return (
-    <Row gutter={10}>
-      {courses
-        ? courses.map(course => ( 
-            <Col key={course.id}>
-              <Card title={course.name} bordered={true}>
-                Duration of course in days: {course.durationDays}
-                <br></br>
-                Course start : {dateConvert(course.startDate)}
-                <br></br>
-                Course end : {dateConvert(course.endDate)}
-              </Card>
-              <Button onClick={() => unSubscribeFromCourse(course.id, studentId)}>Unsubscribe</Button>
-            </Col>
-          ))
-        : ""}
-    </Row>
+    <Col sm={12} lg={8} xl={6}>
+      <Card title={course.name} bordered={true}>
+        Duration of course in days: {course.durationDays}
+        <br></br>
+        Course start : {dateConvert(course.startDate)}
+        <br></br>
+        Course end : {dateConvert(course.endDate)}
+      </Card>
+      <Row justify="center">
+        <Button onClick={() => unSubscribeFromCourse(course.id, studentId)}>
+          Unsubscribe
+        </Button>
+      </Row>
+    </Col>
   );
 };
 

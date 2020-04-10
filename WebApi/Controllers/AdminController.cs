@@ -22,11 +22,11 @@ namespace WebApi.Controllers
         public IActionResult GetStudent(int studentId)
         {
             var student = _adminService.GetStudent(studentId);
-            if (student != null)
-            {
+            //if (student != null)
+            //{
                 return Ok(student);
-            }
-            return BadRequest(new { message = "Couldnt find student" });
+            //}
+            //return BadRequest(new { title = "Couldnt find student" });
         }
 
         [HttpGet("getAllStudents")]
@@ -41,34 +41,34 @@ namespace WebApi.Controllers
                     count
                 });
             }
-            return BadRequest(new { message = "Couldnt find any student" });
+            return BadRequest(new { title = "Couldnt find any student" });
         }
 
         [HttpPost("createStudent")]
         public IActionResult CreateStudent(UserSignUpModel userModel)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { message = "Model is not valid"});
+                return BadRequest(new { title = "Model is not valid"});
             var student = _adminService.CreateStudent(userModel);
             if(student != null)
             {
                 return Ok(student);
             }
-            return BadRequest(new { message = "Couldnt create student" });
+            return BadRequest(new { title = "Couldnt create student" });
         }
 
         [HttpPut("updateStudent")]
         public IActionResult UpdateStudent(UserModel studentModel)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { message = "Invalid model for update" });
+                return BadRequest(new { title = "Invalid model for update" });
             var student = _adminService.UpdateStudent(studentModel);
             if(student != null)
             {
                 return Ok(student);
             }
 
-            return BadRequest(new { message = "Couldnt update student" });
+            return BadRequest(new { title = "Couldnt update student" });
         }
 
         [HttpDelete("deleteStudent")]
@@ -80,7 +80,7 @@ namespace WebApi.Controllers
                 return Ok(student);
             }
 
-            return BadRequest(new { message = "Couldnt delete student" });
+            return BadRequest(new { title = "Couldnt delete student" });
         }
 
         [HttpDelete("deleteStudents")]
@@ -92,7 +92,7 @@ namespace WebApi.Controllers
                 return Ok(students);
             }
 
-            return BadRequest(new { message = "Couldnt delete students" });
+            return BadRequest(new { title = "Couldnt delete students" });
         }
 
     }

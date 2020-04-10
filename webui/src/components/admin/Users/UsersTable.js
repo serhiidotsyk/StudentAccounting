@@ -4,7 +4,7 @@ import {
   getAllUsers,
   updateStudent,
   deleteStudent,
-  deleteStudents
+  deleteStudents,
 } from "../../../actions/usersTableAction";
 import {
   Table,
@@ -13,7 +13,8 @@ import {
   Popconfirm,
   Form,
   Button,
-  Pagination
+  Pagination,
+  Row,
 } from "antd";
 import "./AddUsers.css";
 
@@ -40,8 +41,8 @@ const EditableCell = ({
           rules={[
             {
               required: true,
-              message: `Please Input ${title}!`
-            }
+              message: `Please Input ${title}!`,
+            },
           ]}>
           {inputNode}
         </Form.Item>
@@ -95,18 +96,18 @@ const UsersTable = ({
     setSortOrder(sorter.order);
     setSortField(sorter.field);
   };
-  const onSelectChange = selectedRowKey => {
+  const onSelectChange = (selectedRowKey) => {
     setSelectedRowKeys(selectedRowKey);
   };
 
   const rowSelection = {
     selectedRowKeys,
-    onChange: onSelectChange
+    onChange: onSelectChange,
   };
 
-  const isEditing = record => record.id === editingId;
+  const isEditing = (record) => record.id === editingId;
 
-  const edit = record => {
+  const edit = (record) => {
     form.setFieldsValue({ ...record });
     setEditingId(record.id);
   };
@@ -115,7 +116,7 @@ const UsersTable = ({
     setEditingId("");
   };
 
-  const deleteUser = userId => {
+  const deleteUser = (userId) => {
     deleteStudent(userId);
   };
 
@@ -123,7 +124,7 @@ const UsersTable = ({
     deleteStudents(selectedRowKeys);
   };
 
-  const save = async record => {
+  const save = async (record) => {
     try {
       const row = await form.validateFields();
       const studentToUpdate = Object.assign(record, row);
@@ -149,7 +150,7 @@ const UsersTable = ({
     onChange,
     current,
     onShowSizeChange,
-    pageSizeOption
+    pageSizeOption,
   }) => {
     console.log(total, onChange, current);
     return (
@@ -169,25 +170,25 @@ const UsersTable = ({
       title: "First Name",
       dataIndex: "firstName",
       editable: true,
-      sorter: true
+      sorter: true,
     },
     {
       title: "Last Name",
       dataIndex: "lastName",
       editable: true,
-      sorter: true
+      sorter: true,
     },
     {
       title: "Age",
       dataIndex: "age",
       editable: true,
-      sorter: true
+      sorter: true,
     },
     {
       title: "Email",
       dataIndex: "email",
       editable: false,
-      sorter: true
+      sorter: true,
     },
     {
       title: "operation",
@@ -228,26 +229,26 @@ const UsersTable = ({
                 disabled={editingId !== ""}>
                 Delete
               </button>
-            </Popconfirm>
+            </Popconfirm>,
           ]
         );
-      }
-    }
+      },
+    },
   ];
 
-  const mergedColumns = columns.map(col => {
+  const mergedColumns = columns.map((col) => {
     if (!col.editable) {
       return col;
     }
     return {
       ...col,
-      onCell: record => ({
+      onCell: (record) => ({
         record,
         inputType: col.dataIndex === "age" ? "number" : "text",
         dataIndex: col.dataIndex,
         title: col.title,
-        editing: isEditing(record)
-      })
+        editing: isEditing(record),
+      }),
     };
   });
 
@@ -261,8 +262,8 @@ const UsersTable = ({
       <Table
         components={{
           body: {
-            cell: EditableCell
-          }
+            cell: EditableCell,
+          },
         }}
         bordered
         dataSource={users}
@@ -273,32 +274,34 @@ const UsersTable = ({
         rowSelection={rowSelection}
         expandable={{
           expandedRowRender,
-          rowExpandable: record => record.courses.length > 0
+          rowExpandable: (record) => record.courses.length > 0,
         }}
         pagination={false}
       />
-      <MyPagination
-        total={count}
-        current={pageNumber}
-        onChange={onPaginationChange}
-        onShowSizeChange={onShowSizeChange}
-        pageSizeOption={pageSizeOption}
-      />
-      <Popconfirm
-        disabled={!hasSelected}
-        title="Sure to delete?"
-        onConfirm={deleteUsers}>
-        <Button type="primary" disabled={!hasSelected}>
-          Delete selected
-        </Button>
-      </Popconfirm>
+      <Row justify="center" style={{paddingTop:"10px"}}>
+          <MyPagination
+            total={count}
+            current={pageNumber}
+            onChange={onPaginationChange}
+            onShowSizeChange={onShowSizeChange}
+            pageSizeOption={pageSizeOption}
+          />
+          <Popconfirm
+            disabled={!hasSelected}
+            title="Sure to delete?"
+            onConfirm={deleteUsers}>
+            <Button type="primary" disabled={!hasSelected}>
+              Delete selected
+            </Button>
+          </Popconfirm>
+      </Row>
     </Form>
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
-    allUsers: state.usersTable
+    allUsers: state.usersTable,
   };
 };
 
@@ -306,5 +309,5 @@ export default connect(mapStateToProps, {
   getAllUsers,
   deleteStudent,
   deleteStudents,
-  updateStudent
+  updateStudent,
 })(UsersTable);

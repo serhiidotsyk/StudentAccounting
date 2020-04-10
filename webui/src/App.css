@@ -32,9 +32,10 @@
   }
 } */
 .site-layout-content {
+  height: 100%;
   width: 100%;
-  padding: 100px;
-  min-height: 280px;
+  padding: 10px;
+  flex: auto;
   background-color: #ffffff;
 }
 
@@ -46,12 +47,29 @@
   /* margin: 16px 24px 16px 0; */
   color: #ffffff;
 }
+
 .leftpart-logo {
   height: 10px;
   width: 50px;
 }
+/* .expandButtonWrapper>.ant-btn {
+  width: 120px;
+  width: 100%;
+  background-color: inherit;
+  color: #ffffff;
+  border: none;
+}
+
+.expandButtonWrapper>.ant-btn:hover,
+.expandButtonWrapper>.ant-btn:focus,
+.expandButtonWrapper>.ant-btn:active {
+  background-color: inherit;
+  color: #ffffff;
+} */
+
 
 .ant-menu.ant-menu-dark .ant-menu-item-selected.custom-menu-item {
   text-decoration-color: inherit;
-  background-color: inherit; /*Overriden property*/
+  background-color: inherit;
+  /*Overriden property*/
 }

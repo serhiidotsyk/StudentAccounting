@@ -5,39 +5,42 @@ import {
   API_GET_ALL_USERS,
   API_UPDATE_USER,
   API_DELETE_USER,
-  API_DELETE_USERS
+  API_DELETE_USERS,
 } from "../config";
+
+import { trackPromise } from "react-promise-tracker";
+import { openNotification } from "../services/notifications"
 
 export function getUsers(users, count) {
   return {
     type: GET_ALL_USERS,
     users,
-    count
+    count,
   };
 }
 
 export function updateUser(user) {
   return {
     type: UPDATE_USER,
-    user
+    user,
   };
 }
 
 export function deleteUser(user) {
   return {
     type: DELETE_USER,
-    user
+    user,
   };
 }
 
 export function deleteUsers(users) {
   return {
     type: DELETE_USERS,
-    users
+    users,
   };
 }
 
-const dateConvert = formatDate => {
+const dateConvert = (formatDate) => {
   return new Date(formatDate.concat("Z")).toLocaleString();
 };
 
@@ -46,59 +49,70 @@ export function getAllUsers({
   pageSize,
   searchString,
   sortOrder,
-  sortField
+  sortField,
 }) {
-  return dispatch => {
-    return axios
-      .get(API_GET_ALL_USERS, {
-        params: {
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          searchString: searchString,
-          sortOrder: sortOrder,
-          sortField: sortField
-        }
-      })
-      .then(res => {
-        const users = res.data.student.map(user => {
-          user.courses.map(course => {
-            course.startDate = dateConvert(course.startDate);
-            course.endDate = dateConvert(course.endDate);
-            return course;
+  return (dispatch) => {
+    return trackPromise(
+      axios
+        .get(API_GET_ALL_USERS, {
+          params: {
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            searchString: searchString,
+            sortOrder: sortOrder,
+            sortField: sortField,
+          },
+        })
+        .then((res) => {
+          const users = res.data.student.map((user) => {
+            user.courses.map((course) => {
+              course.startDate = dateConvert(course.startDate);
+              course.endDate = dateConvert(course.endDate);
+              return course;
+            });
+            return user;
           });
-          return user;
-        });
-        const count = res.data.count;
-        dispatch(getUsers(users, count));
-      });
+          const count = res.data.count;
+          dispatch(getUsers(users, count));
+        })
+    );
   };
 }
 
 export function updateStudent(user) {
   console.log("user", user);
-  return dispatch => {
-    return axios.put(API_UPDATE_USER, user).then(res => {
-      dispatch(updateUser(res.data));
-    });
+  return (dispatch) => {
+    return trackPromise(
+      axios.put(API_UPDATE_USER, user).then((res) => {
+        openNotification.success("Successfuly updated student");
+        dispatch(updateUser(res.data));
+      })
+    );
   };
 }
 
 export function deleteStudent(studentId) {
-  return dispatch => {
-    return axios
-      .delete(API_DELETE_USER, { params: { studentId: studentId } })
-      .then(res => {
-        dispatch(deleteUser(res.data));
-      });
+  return (dispatch) => {
+    return trackPromise(
+      axios
+        .delete(API_DELETE_USER, { params: { studentId: studentId } })
+        .then((res) => {
+          dispatch(deleteUser(res.data));
+          openNotification.success("Successfuly deleted user");
+        })
+    );
   };
 }
 
 export function deleteStudents(studentIds) {
-  return dispatch => {
-    return axios
-      .delete(API_DELETE_USERS, { params: { studentIds: studentIds } })
-      .then(res => {
-        dispatch(deleteUser(res.data));
-      });
+  return (dispatch) => {
+    return trackPromise(
+      axios
+        .delete(API_DELETE_USERS, { params: { studentIds: studentIds } })
+        .then((res) => {
+          dispatch(deleteUser(res.data));
+          openNotification.success("Successfuly deleted user");
+        })
+    );
   };
 }
