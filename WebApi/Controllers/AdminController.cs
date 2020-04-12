@@ -33,7 +33,7 @@ namespace WebApi.Controllers
         [HttpGet("getAllStudents")]
         public async Task<IActionResult> GetAllStudents([FromQuery] QueryStringParams queryStringParams)
         {
-            var (student, count)= await _adminService.GetAllStudentsAsync(queryStringParams);
+            var (student, count) = await _adminService.GetAllStudentsAsync(queryStringParams);
             if (student != null)
             {
                 return Ok(new

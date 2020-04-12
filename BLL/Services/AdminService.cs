@@ -42,9 +42,9 @@ namespace BLL.Services
         public async Task<(ICollection<StudentInfoModel>, int)> GetAllStudentsAsync(QueryStringParams queryStringParams)
         {
             IEnumerable<User> students = await _context.Users.Include(u => u.UserCourses)
-                                          .ThenInclude(uc => uc.Course)
-                                           .Where(u => u.RoleId == (int)RoleType.Student)
-                                            .ToListAsync();
+                                                              .ThenInclude(uc => uc.Course)
+                                                               .Where(u => u.RoleId == (int)RoleType.Student)
+                                                                .ToListAsync();
 
             if (!string.IsNullOrEmpty(queryStringParams.SearchString))
             {
@@ -110,7 +110,8 @@ namespace BLL.Services
 
         public async Task<UserModel> CreateStudentAsync(UserSignUpModel studentModel)
         {
-            var isUserExists = await _context.Users.Where(u => u.Email == studentModel.Email).SingleOrDefaultAsync();
+            var isUserExists = await _context.Users.Where(u => u.Email == studentModel.Email)
+                                                    .SingleOrDefaultAsync();
             if (isUserExists != null)
                 return null;
 
@@ -138,6 +139,7 @@ namespace BLL.Services
             if (student != null)
             {
                 student = _mapper.Map<UserModel, User>(studentModel, student);
+
                 _context.Users.Update(student);
                 await _context.SaveChangesAsync();
 
@@ -149,7 +151,9 @@ namespace BLL.Services
 
         public async Task<UserModel> DeleteAsync(int studentId)
         {
-            var studentToDelete = await _context.Users.Include(u => u.ScheduledJobs).Where(u => u.Id == studentId).SingleOrDefaultAsync();
+            var studentToDelete = await _context.Users.Include(u => u.ScheduledJobs)
+                                                       .Where(u => u.Id == studentId)
+                                                        .SingleOrDefaultAsync();
             if (studentToDelete != null)
             {
                 foreach (var item in studentToDelete.ScheduledJobs)
@@ -159,6 +163,7 @@ namespace BLL.Services
                 }
                 _context.Users.Remove(studentToDelete);
                 await _context.SaveChangesAsync();
+
                 return _mapper.Map<UserModel>(studentToDelete);
             }
 

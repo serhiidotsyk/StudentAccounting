@@ -26,7 +26,8 @@ namespace BLL.Services
         }
         public async Task<(bool, UserModel)> SignInAsync(UserSignInModel userSignInModel)
         {
-            var user = await _context.Users.Where(u => u.Email == userSignInModel.Email).SingleOrDefaultAsync();
+            var user = await _context.Users.Where(u => u.Email == userSignInModel.Email)
+                                            .SingleOrDefaultAsync();
             if (user == null)
             {
                 throw new NotFoundException();
@@ -44,7 +45,8 @@ namespace BLL.Services
 
         public async Task<(bool, UserModel)> SocialLoginAsync(UserSocialLogin userSocialLogin)
         {
-            var user = await _context.Users.Where(u => u.Email == userSocialLogin.Email).SingleOrDefaultAsync();
+            var user = await _context.Users.Where(u => u.Email == userSocialLogin.Email)
+                                            .SingleOrDefaultAsync();
 
             if (user == null)
             {
@@ -74,6 +76,7 @@ namespace BLL.Services
             {
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
+
                 return _mapper.Map<UserModel>(user);
             }
             return null;
@@ -81,7 +84,8 @@ namespace BLL.Services
 
         public async Task<UserModel> SignUpAsync(UserSignUpModel userSignUpModel)
         {
-            var isUserExists = await _context.Users.Where(u => u.Email == userSignUpModel.Email).SingleOrDefaultAsync();
+            var isUserExists = await _context.Users.Where(u => u.Email == userSignUpModel.Email)
+                                                    .SingleOrDefaultAsync();
             if (isUserExists != null)
                 return null;
 

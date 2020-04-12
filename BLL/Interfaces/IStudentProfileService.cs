@@ -1,13 +1,17 @@
 ﻿using BLL.Models.StudentProfile;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
     public interface IStudentProfileService
     {
-        public UserModel GetStudentProfile(int id);
-        public UserModel EditStudentProfile(int id);
+        /// <summary>
+        /// Gets student profile
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// Studend model
+        /// </returns>
+        public Task<UserModel> GetStudentProfile(int id);
     }
 }

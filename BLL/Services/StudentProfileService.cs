@@ -2,7 +2,7 @@
 using BLL.Interfaces;
 using BLL.Models.StudentProfile;
 using DAL;
-using System;
+using System.Threading.Tasks;
 
 namespace BLL.Services
 {
@@ -16,15 +16,9 @@ namespace BLL.Services
             _context = context;
             _mapper = mapper;
         }
-
-        public UserModel EditStudentProfile(int id)
+        public async Task<UserModel> GetStudentProfile(int id)
         {
-            throw new NotImplementedException();
-        }
-
-        public UserModel GetStudentProfile(int id)
-        {
-            var student = _context.Users.Find(id);
+            var student = await _context.Users.FindAsync(id);
             if (student != null)
             {
                 return _mapper.Map<UserModel>(student);

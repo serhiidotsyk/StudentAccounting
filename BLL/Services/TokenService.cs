@@ -34,14 +34,11 @@ namespace BLL.Services
             _mapper = mapper;
         }
 
-        /// <summary>
-        /// Method to generate tokens for users
-        /// </summary>
-        /// <param name="userModel"></param>
-        /// <returns></returns>
         public async Task<JwtSecurityToken> GenerateAccessTokenAsync(int userId)
         {
-            var user = await _context.Users.Include(u => u.Role).Where(i => i.Id == userId).SingleOrDefaultAsync();
+            var user = await _context.Users.Include(u => u.Role)
+                                            .Where(i => i.Id == userId)
+                                             .SingleOrDefaultAsync();
 
             var claims = new List<Claim>
             {
@@ -64,14 +61,10 @@ namespace BLL.Services
             return token;
         }
 
-        /// <summary>
-        /// Method for generation and saving in DB refresh tokens for renewing access tokens
-        /// </summary>
-        /// <param name="userModel"></param>
-        /// <returns></returns>
         public async Task<RefreshTokenModel> GenerateRefreshTokenAsync(UserModel userModel)
         {
-            ICollection<RefreshToken> tokens = await _context.Tokens.Where(t => t.UserId == userModel.Id).ToListAsync();
+            ICollection<RefreshToken> tokens = await _context.Tokens.Where(t => t.UserId == userModel.Id)
+                                                                     .ToListAsync();
 
             //you have to relogin if number of logged devices higher than maximum allowed
             if (tokens.Count() > MAXIMUM_LOGGED_DEVICES)
@@ -96,11 +89,6 @@ namespace BLL.Services
             return _mapper.Map<RefreshTokenModel>(newRefreshToken);
         }
 
-        /// <summary>
-        /// Method for validation of refresh token that was sent by user
-        /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
         public async Task<RefreshTokenModel> ValidateRefreshTokenAsync(string token)
         {
             var refreshedToken = await _context.Tokens.SingleOrDefaultAsync(x => x.Token == token);

@@ -20,7 +20,8 @@ namespace BLL.Services
         private readonly IHttpContextAccessor _httpContext;
         private readonly LinkGenerator _linkGenerator;
         private readonly ApplicationDbContext _context;
-        public MailService(IOptions<EmailConfiguration> emailConfig, IHttpContextAccessor httpContext, LinkGenerator linkGenerator, ApplicationDbContext context)
+        public MailService(IOptions<EmailConfiguration> emailConfig, 
+            IHttpContextAccessor httpContext, LinkGenerator linkGenerator, ApplicationDbContext context)
         {
             _emailConfig = emailConfig.Value;
             _httpContext = httpContext;
@@ -53,7 +54,8 @@ namespace BLL.Services
         public async Task<string> GenerateConfirmationLinkAsync(UserModel userModel)
         {
             var token = await GenerateEmailConfirmationTokenAsync(userModel);
-            var callbackUrl = "https://" + _httpContext.HttpContext.Request.Host + _linkGenerator.GetPathByAction("ConfirmEmail", "auth", new { userId = userModel.Id, token = token });
+            var callbackUrl = "https://" + _httpContext.HttpContext.Request.Host 
+                + _linkGenerator.GetPathByAction("ConfirmEmail", "auth", new { userId = userModel.Id, token });
 
             return callbackUrl;
         }
@@ -61,7 +63,8 @@ namespace BLL.Services
 
         public async Task<string> GenerateEmailConfirmationTokenAsync(UserModel userModel)
         {
-            var user = await _context.Users.Where(u => u.Id == userModel.Id).SingleOrDefaultAsync();
+            var user = await _context.Users.Where(u => u.Id == userModel.Id)
+                                            .SingleOrDefaultAsync();
             if (user != null)
             {
                 string emailToken = Guid.NewGuid().ToString();
