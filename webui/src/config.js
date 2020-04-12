@@ -1,26 +1,24 @@
-export const API_LOGIN = "https://localhost:44358/api/auth/signIn";
-export const API_SOCIAL_LOGIN = "https://localhost:44358/api/auth/socialLogin";
-export const API_REGISTER = "https://localhost:44358/api/auth/register";
+export const BASE_API_URL = "https://localhost:44358/api/";
 
-export const API_GET_COURSES = "https://localhost:44358/api/course/getCourses";
+export const API_LOGIN = BASE_API_URL + "auth/signIn";
+export const API_SOCIAL_LOGIN = BASE_API_URL + "auth/socialLogin";
+export const API_REGISTER = BASE_API_URL + "auth/register";
+
+export const API_GET_COURSES = BASE_API_URL + "course/getCourses";
 
 export const API_GET_AVAILABLE_COURSES =
-  "https://localhost:44358/api/course/getAvailableCourses";
+  BASE_API_URL + "course/getAvailableCourses";
 export const API_GET_SUBSCRIBED_COURSES =
-  "https://localhost:44358/api/course/getCoursesByStudentId";
+  BASE_API_URL + "course/getCoursesByStudentId";
 
 export const API_SUBSCRIBE_TO_COURSE =
-  "https://localhost:44358/api/course/subscribeToCourse";
+  BASE_API_URL + "course/subscribeToCourse";
 export const API_UNSUBSCRIBE_TO_COURSE =
-  "https://localhost:44358/api/course/unSubscribeFromCourse";
+  BASE_API_URL + "course/unSubscribeFromCourse";
 
-export const API_GET_ALL_USERS =
-  "https://localhost:44358/api/admin/getAllStudents";
-export const API_UPDATE_USER =
-  "https://localhost:44358/api/admin/updateStudent";
-export const API_DELETE_USER =
-  "https://localhost:44358/api/admin/deleteStudent";
-export const API_DELETE_USERS =
-  "https://localhost:44358/api/admin/deleteStudents";
+export const API_GET_ALL_USERS = BASE_API_URL + "admin/getAllStudents";
+export const API_UPDATE_USER = BASE_API_URL + "admin/updateStudent";
+export const API_DELETE_USER = BASE_API_URL + "admin/deleteStudent";
+export const API_DELETE_USERS = BASE_API_URL + "admin/deleteStudents";
 
-export const API_ADD_USER = "https://localhost:44358/api/admin/createStudent";
+export const API_ADD_USER = BASE_API_URL + "admin/createStudent";

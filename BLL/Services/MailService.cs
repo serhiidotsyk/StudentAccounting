@@ -9,6 +9,8 @@ using System.Net.Mail;
 using System.Net;
 using DAL;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services
 {
@@ -30,7 +32,7 @@ namespace BLL.Services
         {
         }
 
-        public void SendConfirmationLink(string email, string body)
+        public async Task SendConfirmationLinkAsync(string email, string body)
         {
             var message = new MailMessage();
             message.From = new MailAddress(_emailConfig.SenderAdress);
@@ -44,30 +46,29 @@ namespace BLL.Services
             {
                 client.EnableSsl = true;
                 client.Credentials = new NetworkCredential(_emailConfig.SenderAdress, "1234pass");
-                client.Send(message);
+                await client.SendMailAsync(message);
             }
-
         }
 
-        public string GenerateConfirmationLink(UserModel userModel)
+        public async Task<string> GenerateConfirmationLinkAsync(UserModel userModel)
         {
-            var token = GenerateEmailConfirmationToken(userModel);
+            var token = await GenerateEmailConfirmationTokenAsync(userModel);
             var callbackUrl = "https://" + _httpContext.HttpContext.Request.Host + _linkGenerator.GetPathByAction("ConfirmEmail", "auth", new { userId = userModel.Id, token = token });
 
             return callbackUrl;
         }
 
 
-        public string GenerateEmailConfirmationToken(UserModel userModel)
+        public async Task<string> GenerateEmailConfirmationTokenAsync(UserModel userModel)
         {
-            var user = _context.Users.Where(u => u.Id == userModel.Id).SingleOrDefault();
+            var user = await _context.Users.Where(u => u.Id == userModel.Id).SingleOrDefaultAsync();
             if (user != null)
             {
                 string emailToken = Guid.NewGuid().ToString();
                 user.EmailConfirmationToken = emailToken;
                 
                 _context.Users.Update(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return emailToken;
             }

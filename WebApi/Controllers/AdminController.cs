@@ -4,6 +4,7 @@ using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace WebApi.Controllers
 {
@@ -19,9 +20,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getStudent")]
-        public IActionResult GetStudent(int studentId)
+        public async Task<IActionResult> GetStudent(int studentId)
         {
-            var student = _adminService.GetStudent(studentId);
+            var student = await _adminService.GetStudentAsync(studentId);
             //if (student != null)
             //{
                 return Ok(student);
@@ -30,9 +31,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getAllStudents")]
-        public IActionResult GetAllStudents([FromQuery] QueryStringParams queryStringParams)
+        public async Task<IActionResult> GetAllStudents([FromQuery] QueryStringParams queryStringParams)
         {
-            var (student, count)= _adminService.GetAllStudents(queryStringParams);
+            var (student, count)= await _adminService.GetAllStudentsAsync(queryStringParams);
             if (student != null)
             {
                 return Ok(new
@@ -45,11 +46,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("createStudent")]
-        public IActionResult CreateStudent(UserSignUpModel userModel)
+        public async Task<IActionResult> CreateStudent(UserSignUpModel userModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { title = "Model is not valid"});
-            var student = _adminService.CreateStudent(userModel);
+            var student = await _adminService.CreateStudentAsync(userModel);
             if(student != null)
             {
                 return Ok(student);
@@ -58,11 +59,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("updateStudent")]
-        public IActionResult UpdateStudent(UserModel studentModel)
+        public async Task<IActionResult> UpdateStudent(UserModel studentModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { title = "Invalid model for update" });
-            var student = _adminService.UpdateStudent(studentModel);
+            var student = await _adminService.UpdateStudentAsync(studentModel);
             if(student != null)
             {
                 return Ok(student);
@@ -72,9 +73,9 @@ namespace WebApi.Controllers
         }
 
         [HttpDelete("deleteStudent")]
-        public IActionResult DeleteStudent(int studentId)
+        public async Task<IActionResult> DeleteStudent(int studentId)
         {
-            var student = _adminService.Delete(studentId);
+            var student = await _adminService.DeleteAsync(studentId);
             if (student != null)
             {
                 return Ok(student);
@@ -84,9 +85,9 @@ namespace WebApi.Controllers
         }
 
         [HttpDelete("deleteStudents")]
-        public IActionResult DeleteStudents([FromQuery] int[] studentIds)
+        public async Task<IActionResult> DeleteStudents([FromQuery] int[] studentIds)
         {
-            var students = _adminService.Delete(studentIds);
+            var students = await _adminService.DeleteAsync(studentIds);
             if(students != null)
             {
                 return Ok(students);

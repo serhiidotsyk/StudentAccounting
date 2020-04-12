@@ -2,16 +2,17 @@
 using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
     public interface IAdminService
     {
-        public StudentInfoModel GetStudent(int studentId);
-        public (ICollection<StudentInfoModel>, int) GetAllStudents(QueryStringParams queryStringParams);
-        public UserModel CreateStudent(UserSignUpModel studentModel);
-        public UserModel UpdateStudent(UserModel studentModel);
-        public UserModel Delete(int studentId);
-        public ICollection<UserModel> Delete(int[] studentIds);
+        public Task<StudentInfoModel> GetStudentAsync(int studentId);
+        public Task<(ICollection<StudentInfoModel>, int)> GetAllStudentsAsync(QueryStringParams queryStringParams);
+        public Task<UserModel> CreateStudentAsync(UserSignUpModel studentModel);
+        public Task<UserModel> UpdateStudentAsync(UserModel studentModel);
+        public Task<UserModel> DeleteAsync(int studentId);
+        public Task<ICollection<UserModel>> DeleteAsync(int[] studentIds);
     }
 }

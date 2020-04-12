@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DAL.Entities;
 using AutoMapper;
+using System.Threading.Tasks;
 
 namespace BLL.Services
 {
@@ -38,9 +39,9 @@ namespace BLL.Services
         /// </summary>
         /// <param name="userModel"></param>
         /// <returns></returns>
-        public JwtSecurityToken GenerateAccessToken(int userId)
+        public async Task<JwtSecurityToken> GenerateAccessTokenAsync(int userId)
         {
-            var user = _context.Users.Include(u => u.Role).Where(i => i.Id == userId).FirstOrDefault();
+            var user = await _context.Users.Include(u => u.Role).Where(i => i.Id == userId).SingleOrDefaultAsync();
 
             var claims = new List<Claim>
             {
@@ -68,9 +69,9 @@ namespace BLL.Services
         /// </summary>
         /// <param name="userModel"></param>
         /// <returns></returns>
-        public RefreshTokenModel GenerateRefreshToken(UserModel userModel)
+        public async Task<RefreshTokenModel> GenerateRefreshTokenAsync(UserModel userModel)
         {
-            var tokens = _context.Tokens.Where(t => t.UserId == userModel.Id);
+            ICollection<RefreshToken> tokens = await _context.Tokens.Where(t => t.UserId == userModel.Id).ToListAsync();
 
             //you have to relogin if number of logged devices higher than maximum allowed
             if (tokens.Count() > MAXIMUM_LOGGED_DEVICES)
@@ -79,7 +80,7 @@ namespace BLL.Services
                 {
                     _context.Tokens.Remove(token);
                 }
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             var newRefreshToken = new RefreshToken
             {
@@ -90,7 +91,7 @@ namespace BLL.Services
             };
 
             _context.Tokens.Add(newRefreshToken);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             
             return _mapper.Map<RefreshTokenModel>(newRefreshToken);
         }
@@ -100,16 +101,16 @@ namespace BLL.Services
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public RefreshTokenModel ValidateRefreshToken(string token)
+        public async Task<RefreshTokenModel> ValidateRefreshTokenAsync(string token)
         {
-            var refreshedToken = _context.Tokens.FirstOrDefault(x => x.Token == token);
+            var refreshedToken = await _context.Tokens.SingleOrDefaultAsync(x => x.Token == token);
             if (refreshedToken == null)
                 return null;
 
             if (refreshedToken.ExpirationDate < DateTime.UtcNow || refreshedToken.Revoked == true)
             {
                 _context.Tokens.Remove(refreshedToken);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return null;
             }
 
@@ -117,7 +118,7 @@ namespace BLL.Services
             refreshedToken.Token = newRefreshToken;
 
             _context.Tokens.Update(refreshedToken);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             
             return _mapper.Map<RefreshTokenModel>(refreshedToken);
         }

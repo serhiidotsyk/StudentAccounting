@@ -6,8 +6,10 @@ using BLL.Models.StudentProfile;
 using DAL;
 using DAL.Entities;
 using DAL.Shared;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BLL.Services
 {
@@ -22,9 +24,9 @@ namespace BLL.Services
             _mapper = mapper;
             _mailService = mailService;
         }
-        public (bool, UserModel) SignIn(UserSignInModel userSignInModel)
+        public async Task<(bool, UserModel)> SignInAsync(UserSignInModel userSignInModel)
         {
-            var user = _context.Users.Where(u => u.Email == userSignInModel.Email).SingleOrDefault();
+            var user = await _context.Users.Where(u => u.Email == userSignInModel.Email).SingleOrDefaultAsync();
             if (user == null)
             {
                 throw new NotFoundException();
@@ -40,13 +42,13 @@ namespace BLL.Services
 
         }
 
-        public (bool, UserModel) SocialLogin(UserSocialLogin userSocialLogin)
+        public async Task<(bool, UserModel)> SocialLoginAsync(UserSocialLogin userSocialLogin)
         {
-            var user = _context.Users.Where(u => u.Email == userSocialLogin.Email).SingleOrDefault();
+            var user = await _context.Users.Where(u => u.Email == userSocialLogin.Email).SingleOrDefaultAsync();
 
             if (user == null)
             {
-                return (true, SocialSignUp(userSocialLogin));
+                return (true, await SocialSignUpAsync(userSocialLogin));
             }
             if (user.Email == userSocialLogin.Email)
             {
@@ -58,7 +60,7 @@ namespace BLL.Services
             }
         }
 
-        private UserModel SocialSignUp(UserSocialLogin userSocialLogin)
+        private async Task<UserModel> SocialSignUpAsync(UserSocialLogin userSocialLogin)
         {
             var user = _mapper.Map<UserSocialLogin, User>(userSocialLogin, cfg =>
                 cfg.AfterMap((src, dest) =>
@@ -68,18 +70,18 @@ namespace BLL.Services
                     dest.RoleId = (int)RoleType.Student;
                 }));
 
-            if(user != null)
+            if (user != null)
             {
                 _context.Users.Add(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return _mapper.Map<UserModel>(user);
             }
             return null;
         }
 
-        public UserModel SignUp(UserSignUpModel userSignUpModel)
+        public async Task<UserModel> SignUpAsync(UserSignUpModel userSignUpModel)
         {
-            var isUserExists = _context.Users.Where(u => u.Email == userSignUpModel.Email).SingleOrDefault();
+            var isUserExists = await _context.Users.Where(u => u.Email == userSignUpModel.Email).SingleOrDefaultAsync();
             if (isUserExists != null)
                 return null;
 
@@ -93,13 +95,13 @@ namespace BLL.Services
             if (user != null)
             {
                 _context.Users.Add(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 var userValidation = _mapper.Map<UserModel>(user);
 
-                string callBackUrl = _mailService.GenerateConfirmationLink(userValidation);
+                string callBackUrl = await _mailService.GenerateConfirmationLinkAsync(userValidation);
 
-                _mailService.SendConfirmationLink(userValidation.Email,
+                await _mailService.SendConfirmationLinkAsync(userValidation.Email,
                     $"Confirm registration following the link: <a href='{callBackUrl}'>Confirm email NOW</a>");
 
                 return userValidation;
@@ -108,22 +110,22 @@ namespace BLL.Services
             return null;
         }
 
-        public UserModel ConfirmEmail(int userId, string token)
+        public async Task<UserModel> ConfirmEmailAsync(int userId, string token)
         {
-            var user = _context.Users.Where(u => u.Id == userId).SingleOrDefault();
-            if(user != null)
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
             {
                 if (user.EmailConfirmationToken.Equals(token))
                 {
                     user.IsEmailComfirmed = true;
 
                     _context.Users.Update(user);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
                 return _mapper.Map<UserModel>(user);
             }
             return null;
-            
+
         }
     }
 }

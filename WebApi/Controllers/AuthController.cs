@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
 using BLL.Interfaces;
 using BLL.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -20,11 +21,11 @@ namespace WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public  IActionResult Register(UserSignUpModel userSignUpModel)
+        public async Task<IActionResult> Register(UserSignUpModel userSignUpModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { title = "Model is not valid" });
-            var user = _authService.SignUp(userSignUpModel);
+            var user = await _authService.SignUpAsync(userSignUpModel);
             if (user != null)
             {
                 return Ok(new
@@ -37,9 +38,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("ConfirmEmail")]
-        public IActionResult ConfirmEmail(int userId, string token)
+        public async Task<IActionResult> ConfirmEmail(int userId, string token)
         {
-            var user = _authService.ConfirmEmail(userId, token);
+            var user = await _authService.ConfirmEmailAsync(userId, token);
             if (user != null)
                 return Ok("Email Confirmed!");
             else
@@ -48,15 +49,15 @@ namespace WebApi.Controllers
 
         [HttpPost("signIn")]
         [AllowAnonymous]
-        public IActionResult SignIn(UserSignInModel userSignInModel)
+        public async Task<IActionResult> SignIn(UserSignInModel userSignInModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { title = "Model is not valid" });
-            var (state ,user) = _authService.SignIn(userSignInModel);            
+            var (state ,user) = await _authService.SignInAsync(userSignInModel);            
             if(state)
             {
-                var access_token = new JwtSecurityTokenHandler().WriteToken(_tokenService.GenerateAccessToken(user.Id));
-                var refresh_token = _tokenService.GenerateRefreshToken(user).Token;
+                var access_token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.GenerateAccessTokenAsync(user.Id));
+                var refresh_token = (await _tokenService.GenerateRefreshTokenAsync(user)).Token;
                     
                 return Ok(new
                 {
@@ -68,17 +69,17 @@ namespace WebApi.Controllers
             return NotFound(new { title = "You have entered an invalid username or password" });
         }
         [HttpPost("socialLogin")]
-        public IActionResult SocialLogin(UserSocialLogin userSocialLogin)
+        public async Task<IActionResult> SocialLogin(UserSocialLogin userSocialLogin)
         {
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var (state, user) = _authService.SocialLogin(userSocialLogin);
+            var (state, user) = await _authService.SocialLoginAsync(userSocialLogin);
             if (state)
             {
-                var access_token = new JwtSecurityTokenHandler().WriteToken(_tokenService.GenerateAccessToken(user.Id));
-                var refresh_token = _tokenService.GenerateRefreshToken(user).Token;
+                var access_token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.GenerateAccessTokenAsync(user.Id));
+                var refresh_token = (await _tokenService.GenerateRefreshTokenAsync(user)).Token;
 
                 return Ok(new
                 {
@@ -90,18 +91,20 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("refreshToken")]
-        public IActionResult RefreshToken(string refreshTokenModel)
+        public async Task<IActionResult> RefreshToken(string refreshTokenModel)
         {
-            var refreshedToken = _tokenService.ValidateRefreshToken(refreshTokenModel);
-            if (refreshedToken == null)
+            var refreshToken = await _tokenService.ValidateRefreshTokenAsync(refreshTokenModel);
+            if (refreshToken == null)
             {
                 return BadRequest(new { title = "invalid_grant" });
             }
+            var access_token = new JwtSecurityTokenHandler().WriteToken(await _tokenService.GenerateAccessTokenAsync(refreshToken.UserId));
+            var refresh_token = refreshToken.Token;
 
             return Ok(new
             {
-                access_token = new JwtSecurityTokenHandler().WriteToken(_tokenService.GenerateAccessToken(refreshedToken.UserId)),
-                refresh_token = refreshedToken.Token
+                access_token,
+                refresh_token
             });
         }
     }

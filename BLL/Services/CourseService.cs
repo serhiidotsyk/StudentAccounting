@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BLL.Services
 {
@@ -41,9 +42,9 @@ namespace BLL.Services
         /// <returns>
         /// returns course model
         /// </returns>
-        public CourseModel GetCourse(int id)
+        public async Task<CourseModel> GetCourseAsync(int id)
         {
-            var course = _context.Courses.Find(id);
+            var course = await _context.Courses.FindAsync(id);
             if (course != null)
             {
                 return _mapper.Map<CourseModel>(course);
@@ -59,12 +60,14 @@ namespace BLL.Services
         /// <returns>
         /// return collection of courses by student
         /// </returns>
-        public ICollection<CourseInfoModel> GetCoursesByStudentId(int studentId)
+        public async Task<ICollection<CourseInfoModel>> GetCoursesByStudentIdAsync(int studentId)
         {
-            var courses = _context.UserCourses.Include(c => c.Course)
-                                                .Where(u => u.StudentId == studentId);
+            ICollection<UserCourse> courses = await _context.UserCourses
+                                                                        .Include(c => c.Course)
+                                                                         .Where(u => u.StudentId == studentId)
+                                                                          .ToListAsync();
 
-            if (courses != null && courses.Count() > 0)
+            if (courses?.Count() > 0)
             {
                 return _mapper.Map<ICollection<CourseInfoModel>>(courses);
             }
@@ -78,9 +81,9 @@ namespace BLL.Services
         /// <returns>
         /// returns a collection of all courses
         /// </returns>
-        public ICollection<CourseModel> GetAllCourses()
+        public async Task<ICollection<CourseModel>> GetAllCoursesAsync()
         {
-            var courses = _context.Courses.ToList();
+            var courses = await _context.Courses.ToListAsync();
             if (courses != null)
             {
                 return _mapper.Map<ICollection<CourseModel>>(courses);
@@ -96,11 +99,12 @@ namespace BLL.Services
         /// <returns>
         /// returns a collection of available courses
         /// </returns>
-        public ICollection<CourseModel> GetAvailableCourses(int userId)
+        public async Task<ICollection<CourseModel>> GetAvailableCoursesAsync(int userId)
         {
-            var courses = _context.Courses.Include(c => c.UserCourses)
+            var courses = await _context.Courses.Include(c => c.UserCourses)
                                             .Where(uc => uc.UserCourses
-                                             .All(u => u.StudentId != userId) || uc.UserCourses.Count == 0);
+                                             .All(u => u.StudentId != userId) || uc.UserCourses.Count == 0)
+                                              .ToListAsync();
 
             if (courses != null && courses.Count() > 0)
             {
@@ -117,11 +121,11 @@ namespace BLL.Services
         /// <returns>
         /// returns a created course model
         /// </returns>
-        public CourseModel CreateCourse(CourseModel createCourseModel)
+        public async Task<CourseModel> CreateCourseAsync(CourseModel createCourseModel)
         {
             var course = _mapper.Map<Course>(createCourseModel);
             _context.Courses.Add(course);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return _mapper.Map<CourseModel>(course);
         }
@@ -134,14 +138,14 @@ namespace BLL.Services
         /// <returns>
         /// returns an updated course model
         /// </returns>
-        public CourseModel UpdateCourse(CourseModel courseModel, int courseId)
+        public async Task<CourseModel> UpdateCourseAsync(CourseModel courseModel, int courseId)
         {
-            var course = _context.Courses.Find(courseId);
+            var course = await _context.Courses.FindAsync(courseId);
             if (course != null)
             {
                 course = _mapper.Map<Course>(courseModel);
                 _context.Courses.Update(course);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return courseModel;
             }
@@ -157,10 +161,10 @@ namespace BLL.Services
         /// <returns>
         /// returns a course to which user was subscribed
         /// </returns>
-        public CourseModel SubscribeToCourse(SubscribeToCourseModel subscribeToCourseModel)
+        public async Task<CourseModel> SubscribeToCourseAsync(SubscribeToCourseModel subscribeToCourseModel)
         {
-            var course = _context.Courses.Find(subscribeToCourseModel.CourseId);
-            var user = _context.Users.Find(subscribeToCourseModel.StudentId);
+            var course = await _context.Courses.FindAsync(subscribeToCourseModel.CourseId);
+            var user = await _context.Users.FindAsync(subscribeToCourseModel.StudentId);
 
             if (course != null && user != null)
             {
@@ -175,9 +179,9 @@ namespace BLL.Services
 
                 var userCourse = _mapper.Map<UserCourse>(userCourseModel);
                 _context.UserCourses.Add(userCourse);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                SendScheduledEmailBackground(userCourseModel.StartDate,user.Email, user.Id);
+                await SendScheduledEmailBackgroundAsync(userCourseModel.StartDate, user.Email, user.Id);
 
                 return _mapper.Map<CourseModel>(course);
             }
@@ -185,7 +189,7 @@ namespace BLL.Services
             return null;
         }
 
-        private void SendScheduledEmailBackground(DateTime startDate,string email, int userId)
+        private async Task SendScheduledEmailBackgroundAsync(DateTime startDate, string email, int userId)
         {
             var oneDayBeforeEmail = startDate.AddDays(ONE_DAY_BEFORE_COURSE_START * -1);
             var oneWeekBeforeEmail = startDate.AddDays(ONE_WEEK_BEFORE_COURSE_START * -1);
@@ -198,26 +202,28 @@ namespace BLL.Services
             if (days.Days >= 30)
             {
                 var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
-                                     .SendScheduledEmail(email, $"test scheduled in {ONE_MONTH_BEFORE_COURSE_START} day(-s)"), 
+                                     .SendScheduledEmail(email, $"test scheduled in {ONE_MONTH_BEFORE_COURSE_START} day(-s)"),
                                      new DateTimeOffset(oneMonthBeforeEmail));
 
                 jobModelList.Add(new ScheduledJobModel { Key = key });
             }
+
             if (days.Days >= 14)
             {
                 var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
-                                     .SendScheduledEmail(email, $"test scheduled in {ONE_WEEK_BEFORE_COURSE_START} day(-s)"), 
+                                     .SendScheduledEmail(email, $"test scheduled in {ONE_WEEK_BEFORE_COURSE_START} day(-s)"),
                                      new DateTimeOffset(oneWeekBeforeEmail));
 
                 jobModelList.Add(new ScheduledJobModel { Key = key });
             }
+
             if (days.Days >= 1)
             {
                 oneDayBeforeEmail = new DateTime(oneDayBeforeEmail.Year, oneDayBeforeEmail.Month, oneDayBeforeEmail.Day, HOUR_TO_SEND_EMAIL, 0, 0);
                 var key = _backgroundJob.Schedule<IMailService>(mailService => mailService
-                                     .SendScheduledEmail(email, $"test scheduled in {ONE_DAY_BEFORE_COURSE_START} day(-s)"), 
+                                     .SendScheduledEmail(email, $"test scheduled in {ONE_DAY_BEFORE_COURSE_START} day(-s)"),
                                      new DateTimeOffset(oneDayBeforeEmail));
-                
+
                 _backgroundJob.Enqueue<IMailService>(mailService => mailService
                                      .SendScheduledEmail(email, $"test scheduled in {days.Days} day(-s)"));
                 jobModelList.Add(new ScheduledJobModel { Key = key });
@@ -227,9 +233,9 @@ namespace BLL.Services
             {
                 for (int i = 0; i < jobModelList.Count; i++)
                 {
-                    _context.ScheduledJobs.Add(new ScheduledJob { Id = jobModelList[i].Key, UserId = userId});                    
+                    _context.ScheduledJobs.Add(new ScheduledJob { Id = jobModelList[i].Key, UserId = userId });
                 }
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
 
@@ -240,14 +246,16 @@ namespace BLL.Services
         /// <returns>
         /// unsubscribed course
         /// </returns>
-        public UserCourseModel UnSubscribeFromCourse(UserCourseModel userCourseModel)
+        public async Task<UserCourseModel> UnSubscribeFromCourseAsync(UserCourseModel userCourseModel)
         {
-            var userCourse = _context.UserCourses.Where(uc => uc.StudentId == userCourseModel.StudentId
+            var userCourse = await _context.UserCourses.Where(uc => uc.StudentId == userCourseModel.StudentId
                                                            && uc.CourseId == userCourseModel.CourseId)
-                                                            .SingleOrDefault();
+                                                            .SingleOrDefaultAsync();
             if (userCourse != null)
             {
-                var user = _context.Users.Include(u => u.ScheduledJobs).Where(u => u.Id == userCourseModel.StudentId).SingleOrDefault();
+                var user = await _context.Users.Include(u => u.ScheduledJobs)
+                                          .Where(u => u.Id == userCourseModel.StudentId)
+                                           .SingleOrDefaultAsync();
                 if (user != null)
                 {
                     foreach (var item in user.ScheduledJobs)
@@ -258,9 +266,9 @@ namespace BLL.Services
                 }
 
                 _context.UserCourses.Remove(userCourse);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return _mapper.Map<UserCourseModel>(userCourse);
-            }   
+            }
             return null;
         }
 
@@ -271,13 +279,13 @@ namespace BLL.Services
         /// <returns>
         /// returns a deleted course
         /// </returns>
-        public CourseModel DeleteCourse(int id)
+        public async Task<CourseModel> DeleteCourseAsync(int id)
         {
-            var course = _context.Courses.Find(id);
+            var course = await _context.Courses.FindAsync(id);
             if (course != null)
             {
                 _context.Courses.Remove(course);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return _mapper.Map<CourseModel>(course);
             }
 
@@ -291,16 +299,16 @@ namespace BLL.Services
         /// <returns>
         /// returns a collection of deleted courses
         /// </returns>
-        public ICollection<CourseModel> DeleteCourses(int[] ids)
+        public async Task<ICollection<CourseModel>> DeleteCoursesAsync(int[] ids)
         {
             List<CourseModel> courseList = new List<CourseModel>();
             foreach (var id in ids)
             {
-                var course = _context.Courses.Find(id);
+                var course = await _context.Courses.FindAsync(id);
                 if (course != null)
                 {
                     _context.Courses.Remove(course);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
 
                     var courseModel = _mapper.Map<CourseModel>(course);
 

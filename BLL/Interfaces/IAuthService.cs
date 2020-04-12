@@ -1,13 +1,14 @@
 ﻿using BLL.Models.Auth;
 using BLL.Models.StudentProfile;
+using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
     public interface IAuthService
     {
-        public (bool, UserModel) SignIn(UserSignInModel userSignInModel);
-        public (bool, UserModel) SocialLogin(UserSocialLogin userSignInModel);
-        public UserModel SignUp(UserSignUpModel userSignUpModel);
-        public UserModel ConfirmEmail(int userId, string token);
+        public Task<(bool, UserModel)> SignInAsync(UserSignInModel userSignInModel);
+        public Task<(bool, UserModel)> SocialLoginAsync(UserSocialLogin userSignInModel);
+        public Task<UserModel> SignUpAsync(UserSignUpModel userSignUpModel);
+        public Task<UserModel> ConfirmEmailAsync(int userId, string token);
     }
 }

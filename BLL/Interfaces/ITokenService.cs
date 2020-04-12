@@ -1,16 +1,14 @@
 ﻿using BLL.Models.StudentProfile;
 using BLL.Models.Token;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
     public interface ITokenService
     {
-        public JwtSecurityToken GenerateAccessToken(int userId);
-        public RefreshTokenModel GenerateRefreshToken(UserModel userModel);
-        public RefreshTokenModel ValidateRefreshToken(string token);
+        public Task<JwtSecurityToken> GenerateAccessTokenAsync(int userId);
+        public Task<RefreshTokenModel> GenerateRefreshTokenAsync(UserModel userModel);
+        public Task<RefreshTokenModel> ValidateRefreshTokenAsync(string token);
     }
 }

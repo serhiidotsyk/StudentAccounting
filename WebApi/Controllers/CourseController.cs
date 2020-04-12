@@ -3,6 +3,7 @@ using BLL.Models.Course;
 using BLL.Models.UserCourseModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace WebApi.Controllers
 {
@@ -18,9 +19,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getCourse")]
-        public IActionResult GetCourse(int id)
+        public async Task<IActionResult> GetCourse(int id)
         {
-            var course = _courseService.GetCourse(id);
+            var course = await _courseService.GetCourseAsync(id);
             if (course != null)
             {
                 return Ok(course);
@@ -30,9 +31,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getCourses")]
-        public IActionResult GetCourses()
+        public async Task<IActionResult> GetCourses()
         {
-            var courses = _courseService.GetAllCourses();
+            var courses = await _courseService.GetAllCoursesAsync();
             if (courses != null)
             {
                 return Ok(courses);
@@ -42,9 +43,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getAvailableCourses")]
-        public IActionResult GetAvailableCourses(int studentId)
+        public async Task<IActionResult> GetAvailableCourses(int studentId)
         {
-            var courses = _courseService.GetAvailableCourses(studentId);
+            var courses = await _courseService.GetAvailableCoursesAsync(studentId);
             if (courses != null)
             {
                 return Ok(courses);
@@ -54,9 +55,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("getCoursesByStudentId")]
-        public IActionResult GetCourseByStudentId(int studentId)
+        public async Task<IActionResult> GetCourseByStudentId(int studentId)
         {
-            var courses = _courseService.GetCoursesByStudentId(studentId);
+            var courses = await _courseService.GetCoursesByStudentIdAsync(studentId);
             if(courses != null)
             {
                 return Ok(courses);
@@ -67,11 +68,11 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("createCourse")]
-        public IActionResult CreateCourse(CourseModel courseModel)
+        public async Task<IActionResult> CreateCourse(CourseModel courseModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var course = _courseService.CreateCourse(courseModel);
+            var course = await _courseService.CreateCourseAsync(courseModel);
             if (course != null)
             {
                 return Ok(course);
@@ -82,11 +83,11 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("updateCourse")]
-        public IActionResult UpdateCourse(CourseModel courseModel, int courseId)
+        public async Task<IActionResult> UpdateCourse(CourseModel courseModel, int courseId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var course = _courseService.UpdateCourse(courseModel, courseId);
+            var course = await _courseService.UpdateCourseAsync(courseModel, courseId);
             if (course != null)
             {
                 return Ok(course);
@@ -96,11 +97,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("subscribeToCourse")]
-        public IActionResult SubscribeToCourse(SubscribeToCourseModel subscribeToCourseModel)
+        public async Task<IActionResult> SubscribeToCourse(SubscribeToCourseModel subscribeToCourseModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var course = _courseService.SubscribeToCourse(subscribeToCourseModel);
+            var course = await _courseService.SubscribeToCourseAsync(subscribeToCourseModel);
             if (course != null)
             {
                 return Ok(course);
@@ -110,11 +111,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("unSubscribeFromCourse")]
-        public IActionResult UnSubscribeFromCourse(UserCourseModel userCourseModel)
+        public async Task<IActionResult> UnSubscribeFromCourse(UserCourseModel userCourseModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var course = _courseService.UnSubscribeFromCourse(userCourseModel);
+            var course = await _courseService.UnSubscribeFromCourseAsync(userCourseModel);
             if(course != null)
             {
                 return Ok(course);
@@ -124,9 +125,9 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("deleteCourse")]
-        public IActionResult DeleteCourse(int id)
+        public async Task<IActionResult> DeleteCourse(int id)
         {
-            var course = _courseService.DeleteCourse(id);
+            var course = await _courseService.DeleteCourseAsync(id);
             if (course != null)
             {
                 return Ok(course);
@@ -137,9 +138,9 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("deleteCourses")]
-        public IActionResult DeleteCourses([FromQuery]int[] ids)
+        public async Task<IActionResult> DeleteCourses([FromQuery]int[] ids)
         {
-            var course = _courseService.DeleteCourses(ids);
+            var course = await _courseService.DeleteCoursesAsync(ids);
             if (course != null)
             {
                 return Ok(course);
